@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 Amadeus s.a.s.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Beans to describe the parameters used in aria.pageEngine
  */
@@ -261,13 +276,15 @@ Aria.beanDefinitions({
                     $type : "json:Enum",
                     $description : "Animation to apply to the leaving page",
                     $sample : "slide left",
-                    $enumValues : ["slide left", "slide right", "slide up", "slide down", "fade", "fade reverse", "pop", "pop reverse", "flip", "flip reverse"]
+                    $enumValues : ["slide left", "slide right", "slide up", "slide down", "fade", "fade reverse",
+                            "pop", "pop reverse", "flip", "flip reverse"]
                 },
                 "animateIn" : {
                     $type : "json:Enum",
                     $description : "Animation to apply to the coming page",
                     $sample : "slide left",
-                    $enumValues : ["slide left", "slide right", "slide up", "slide down", "fade", "fade reverse", "pop", "pop reverse", "flip", "flip reverse"],
+                    $enumValues : ["slide left", "slide right", "slide up", "slide down", "fade", "fade reverse",
+                            "pop", "pop reverse", "flip", "flip reverse"],
                     $mandatory : true
                 }
             }
