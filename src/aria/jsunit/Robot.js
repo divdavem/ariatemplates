@@ -20,6 +20,7 @@
  */
 Aria.classDefinition({
     $classpath : 'aria.jsunit.Robot',
+    $dependencies : ['aria.core.Browser'],
     $singleton : true,
     $statics : {
         ROBOT_UNAVAILABLE : "There is no usable implementation of the robot.",
@@ -44,6 +45,10 @@ Aria.classDefinition({
         getRobotClasspath : function () {
             if (Aria.$frameworkWindow.top.phantomJSRobot) {
                 return "aria.jsunit.RobotPhantomJS";
+            }
+            if (aria.core.Browser.isSafari) {
+                // Java is broken on Safari
+                return null;
             }
             var navigator = Aria.$window.navigator;
             try {
