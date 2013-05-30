@@ -31,8 +31,10 @@ Aria.classDefinition({
      * cut, or the opposite
      * @param {String} ellipsisStr The actual string to use for the ellipsis (defaults to "...")
      * @param {String} context Used for the popup (defaults to "...")
+     * @param {String} ellipsisEndStyle Used to know whether the character at the given width will be clipped or not
+     * displayed at all. (defaults to "clipped")
      */
-    $constructor : function (el, width, position, ellipsisStr, context) {
+    $constructor : function (el, width, position, ellipsisStr, context, ellipsisEndStyle) {
         var document = Aria.$window.document;
         this.textContent = el.innerHTML;
         this.context = context;
@@ -78,12 +80,65 @@ Aria.classDefinition({
                 textSpan.style.display = "inline-block";
                 textSpan.style.verticalAlign = "bottom";
 
-                // ie 6 isn't calculating the with properly. As such it can cut off a bit of the sort indicator icon
+                // ie 6 isn't calculating the width properly. As such it can cut off a bit of the sort indicator icon
                 if (aria.core.Browser.isIE6) {
                     width = width - 4;
                 }
+
                 width -= ellipsisWidth;
 
+                if (ellipsisEndStyle == "fullCharacter") {
+                    // we want to make sure a character doesn't get truncated
+                    // compute the average size of a character
+                    var averageCharacterSize = textWidth / this.textContent.length;
+
+                    // Save the expected width
+                    var expectedWidth = width;
+
+                    // Compute the number of characters to be displayed, based on the average size of a character
+                    var numberOfCharToBeDisplayed = Math.round(width / averageCharacterSize);
+
+                    // create a tmp element to calculate the width of the computed string
+                    var tmpContainerElement = this._createSizerEl(el);
+
+                    /**
+                     * The truncated text excluding the ellipsis text
+                     * @type Integer
+                     */
+                    this.truncatedText = this.textContent.substring(0, numberOfCharToBeDisplayed);
+
+                    // Now adjust the text until we reach an acceptable error margin
+                    var errorMargin = this._getAcceptableErrorMargin(tmpContainerElement);
+
+                    var isWidthOk = false;
+
+                    // initialise
+                    tmpContainerElement.innerHTML = this.truncatedText;
+
+                    width = tmpContainerElement.offsetWidth;
+
+                    while (!isWidthOk) {
+                        if (width <= expectedWidth - errorMargin) {
+                            numberOfCharToBeDisplayed++;
+                            this.truncatedText = this.textContent.substring(0, numberOfCharToBeDisplayed);
+                        } else if (width > expectedWidth) {
+                            numberOfCharToBeDisplayed--;
+                            this.truncatedText = this.textContent.substring(0, numberOfCharToBeDisplayed);
+                        }
+
+                        tmpContainerElement.innerHTML = this.truncatedText;
+                        width = tmpContainerElement.offsetWidth;
+
+                        // we don't want the width to exceed the expected width ( in case it's not set, it should not
+                        // exceed
+                        // the parent's width )
+                        isWidthOk = (width <= expectedWidth) && (width >= expectedWidth - errorMargin);
+                    }
+
+                    // delete tmp element
+                    tmpContainerElement.parentNode.removeChild(tmpContainerElement);
+                    tmpContainerElement = null;
+                }
                 if (width < 0) {
                     // this check is important, otherwise IE can raise an
                     // exception when setting the width
@@ -138,6 +193,20 @@ Aria.classDefinition({
     },
     $prototype : {
 
+        _getAcceptableErrorMargin : function (element) {
+
+            var tmpElt = this._createSizerEl(element);
+            // use the width of the Capital M letter as an acceptable margin
+            tmpElt.innerHTML = "M";
+            var marginWidth = tmpElt.offsetWidth;
+
+            // delete tmp element
+            tmpElt.parentNode.removeChild(tmpElt);
+            tmpElt = null;
+
+            return marginWidth;
+        },
+
         /**
          * Create the temporary sizer element to be used internally to measure text
          * @param {HTMLElement} el The element that will be measured thanks to this sizer
@@ -145,6 +214,7 @@ Aria.classDefinition({
          * @private
          */
         _createSizerEl : function (el) {
+
             var document = Aria.$window.document;
             // Need to make sure the new element has the same exact styling applied as the original element so we use
             // the same tag, class, style and append it to the same parent
@@ -270,6 +340,5 @@ Aria.classDefinition({
             this._popup.$dispose();
             this._popup = null;
         }
-
     }
 });
