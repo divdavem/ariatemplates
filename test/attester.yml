@@ -18,3 +18,5 @@ tests:
    #Excluded because PhantomJS has random issues with history management:
    # (to be investigated)
     - test.aria.utils.History
+   #Excluded because of timing issues in travis 
+    - test.aria.widgets.form.text.EllipsisTest
