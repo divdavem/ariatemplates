@@ -19,5 +19,4 @@ tests:
    # (to be investigated)
     - test.aria.utils.History
    #Excluded because of timing issues in travis 
-    - test.aria.widgets.form.text.EllipsisTest
     - test.aria.widgets.form.text.Text
