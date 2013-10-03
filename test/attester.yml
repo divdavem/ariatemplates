@@ -21,3 +21,6 @@ tests:
     - test.aria.widgets.container.dialog.resize.test3.DialogOnResizeTestCase
     - test.aria.utils.overlay.loadingIndicator.scrollableBody.ScrollableBodyTest
     - test.aria.widgets.container.dialog.indicators.DialogTestCase
+test-reports:
+ xml-file: 'test-reports/latest.xml'
+ json-log-file: 'test-reports/latest.json'
