@@ -1134,9 +1134,9 @@
                 this.$setViewportHeight(layout.realHeight(cfg.height));
                 this.$setSizeCfg(tpl.__$width, tpl.__$height);
                 this.__addDebugInfo(cfg.tplDiv);
-                var res = tpl.__$initTemplate();
                 this.__loadLibs(tpl.__$macrolibs, "macrolibs");
-                return res;
+                this.dataReady();
+                return tpl.__$initTemplate();
             },
 
             /**

@@ -61,11 +61,6 @@
         // note that there is no need to clean cfg, this will be done by the template context
         var result = tplCtxt.initTemplate(cfg);
 
-        if (result) {
-            // Fire data ready before we start working with the view
-            tplCtxt.dataReady();
-        }
-
         var tplDiv = cfg.tplDiv;
 
         // On IE, the CSS engine keeps rendering and calculating the position of the background image

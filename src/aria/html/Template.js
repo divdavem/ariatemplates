@@ -193,7 +193,6 @@ Aria.classDefinition({
             this._initCtxDone = true;
 
             if (res) {
-                tplCtxt.dataReady(); // data successfully loaded: signal to template through TemplateContext
                 // check that tplCtxt was not disposed
                 if (tplDiv && tplCtxt._cfg) {
                     // Load the CSS dependencies, the style should be added before the html
