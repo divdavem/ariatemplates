@@ -42,6 +42,10 @@ Aria.classDefinition({
          * @return {String}
          */
         getRobotClasspath : function () {
+            var attester = Aria.$frameworkWindow.top.attester;
+            if (attester && attester.robot) {
+                return "aria.jsunit.RobotAttester";
+            }
             if (Aria.$frameworkWindow.top.phantomJSRobot) {
                 return "aria.jsunit.RobotPhantomJS";
             }
