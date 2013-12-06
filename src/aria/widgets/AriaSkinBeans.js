@@ -1724,6 +1724,9 @@ Aria.beanDefinitions({
             $type : "Object",
             $description : "No properties to specify when the selected frame type is \"SimpleHTML\".",
             $properties : {}
+        },
+        "MultiAutoCompleteCfg" : {
+            $type : "AutoCompleteCfg"
         }
     }
 });

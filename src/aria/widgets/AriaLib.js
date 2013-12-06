@@ -48,6 +48,7 @@ Aria.classDefinition({
             "TimeField" : "aria.widgets.form.TimeField",
             "NumberField" : "aria.widgets.form.NumberField",
             "AutoComplete" : "aria.widgets.form.AutoComplete",
+            "MultiAutoComplete" : "aria.widgets.form.MultiAutoComplete",
             "CheckBox" : "aria.widgets.form.CheckBox",
             "RadioButton" : "aria.widgets.form.RadioButton",
             "Icon" : "aria.widgets.Icon",

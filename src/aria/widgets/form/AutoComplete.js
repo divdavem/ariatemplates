@@ -30,8 +30,8 @@ Aria.classDefinition({
      * @param {Number} lineNumber Line number corresponding in the .tpl file where the widget is created
      * @param {Number} controller the data controller object
      */
-    $constructor : function (cfg, ctxt, lineNumber, controller) {
-        var controller = new aria.widgets.controllers.AutoCompleteController();
+    $constructor : function (cfg, ctxt, lineNumber, controllerParam) {
+        var controller = controllerParam || new aria.widgets.controllers.AutoCompleteController();
 
         if (!cfg.expandButton && cfg.bind) {
             delete cfg.bind.popupOpen;

@@ -107,6 +107,7 @@ Aria.classDefinition({
             "Dialog" : 1,
             "TextInput" : 1,
             "AutoComplete" : 1,
+            "MultiAutoComplete" : 1,
             "TabPanel" : 1,
             "Tab" : 1
         },
