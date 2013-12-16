@@ -295,7 +295,7 @@ Aria.classDefinition({
             }
             var type = this._isPassword && !hts ? "password" : "text";
 
-            var inputWidth = this._setInputWidth(skinObj);
+            var inputWidth = this._computeInputWidth(skinObj);
             if (inputWidth < 0) {
                 inputWidth = 0;
             }
@@ -336,7 +336,7 @@ Aria.classDefinition({
          * @param {Object} skinObj
          * @return {Number} width of input
          */
-        _setInputWidth : function (skinObj) {
+        _computeInputWidth : function (skinObj) {
             return this._frame.innerWidth - skinObj.innerPaddingLeft - skinObj.innerPaddingRight;
         },
 
@@ -757,7 +757,7 @@ Aria.classDefinition({
             // (TextInput)");
             this.$InputWithFrame._updateState.call(this);
             var skinObj = this._skinObj;
-            var inputWidth = this._setInputWidth(skinObj);
+            var inputWidth = this._computeInputWidth(skinObj);
             if (inputWidth < 0) {
                 inputWidth = 0;
             }
@@ -911,10 +911,9 @@ Aria.classDefinition({
                     return;
                 }
 
-                var eventType = (event && event.type) ? {
-                    "eventName" : event.type
-                } : "";
-                this.checkValue(eventType);
+                this.checkValue({
+                    "eventName" : "blur"
+                });
                 // checkvalue might trigger an onchange that disposes the widget, check again this._cfg
                 cfg = this._cfg;
                 if (!cfg) {

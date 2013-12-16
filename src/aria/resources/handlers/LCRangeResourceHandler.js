@@ -50,7 +50,7 @@
         },
         $prototype : {
 
-            rangePattern : new RegExp("^[a-z]{1}\\d+-\\d+"),
+            rangePattern : /^[a-z]{1}\d+-\d+/,
 
             /**
              * Call the callback with an array of suggestions in its arguments. Suggestions that are exact match are
@@ -104,8 +104,8 @@
                     }
 
                     var suggestions = codeSuggestions.concat(labelSuggestions);
-                    results["suggestions"] = suggestions;
-                    results["isRangeValue"] = isRangeValue;
+                    results.suggestions = suggestions;
+                    results.multipleValues = isRangeValue;
                     this.$callback(callback, results);
                 } else {
                     this.$callback(callback, null);

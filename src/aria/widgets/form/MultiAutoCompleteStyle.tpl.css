@@ -29,9 +29,6 @@
  			vertical-align:middle !important;
  			width:40px;
         }
-        .options_selected{
-       	   border-color: #00ACEE;
-       	}
 
 	 {call startLooping()/}
  	{/macro}
@@ -42,20 +39,20 @@
        .xMultiAutoComplete_${skinClassName}_options{
         	display:inline-block;
         	position:relative;
-        	border: ${skinClass.borderWidth}px solid ${skinClass.borderColor};
-        	background-color: ${skinClass.closeSpriteBackground};
-        	color:${skinClass.optionColor};
+        	border: ${skinClass.optionsBorderWidth}px solid ${skinClass.optionsBorderColor};
+        	background-color: ${skinClass.optionsBackgroundColor};
+        	color:${skinClass.optionsColor};
         	border-radius:3px;
         	margin:2px;
         }
 
 
         .xMultiAutoComplete_${skinClassName}_options a{
-        	height:${skinClass.closeSpriteH}px;
-        	width:${skinClass.closeSpriteW}px;
+        	height:${skinClass.closeSpriteHeight}px;
+        	width:${skinClass.closeSpriteWidth}px;
         	display:inline-block;
         	padding-left:2px;
-        	{call background(skinClass.closeSpriteBackground,skinClass.closeSpriteURL,"no-repeat -5px -25px")/}
+        	{call background(skinClass.optionsBackgroundColor,skinClass.closeSpriteURL,"no-repeat -5px -25px")/}
         }
 
         .xMultiAutoComplete_${skinClassName}_options span{

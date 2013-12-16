@@ -1346,17 +1346,31 @@ Aria.beanDefinitions({
             $type : "DropDownTextInputCfg",
             $description : "",
             $properties : {
-                "closeSpriteBackground" : {
-                    $type : "Color",
-                    $default : "#E4E4E4"
-                },
                 "closeSpriteURL" : {
                     $type : "json:String",
                     $description : ""
                 },
-                "optionColor" : {
+                "closeSpriteHeight" : {
+                    $type : "Pixels"
+                },
+                "closeSpriteWidth" : {
+                    $type : "Pixels"
+                },
+                "optionsColor" : {
                     $type : "Color",
                     $default : "#333"
+                },
+                "optionsBackgroundColor" : {
+                    $type : "Color",
+                    $default : "#E4E4E4"
+                },
+                "optionsBorderColor" : {
+                    $type : "Color",
+                    $default : "#AAAAAA"
+                },
+                "optionsBorderWidth" : {
+                    $type : "Pixels",
+                    $default : 1
                 }
             }
         },

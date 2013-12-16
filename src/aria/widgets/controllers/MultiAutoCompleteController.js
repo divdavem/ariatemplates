@@ -231,7 +231,7 @@
                         suggestions = res.suggestions;
                         error = res.error;
                         repositionDropDown = res.repositionDropDown;
-                        this._isRangeValue = res["isRangeValue"];
+                        this._isRangeValue = res.multipleValues;
                     } else {
                         suggestions = res;
                     }

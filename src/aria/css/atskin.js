@@ -1332,15 +1332,14 @@ Aria.classDefinition({
                         italics : true,
                         color : "gray"
                     },
-                    closeSpriteBackground : "#E4E4E4",
-                    closeSpriteURL : "atskin/sprites/closemark.gif",
-                    optionColor : "#333",
                     offsetTop : 1,
-                    closeSpriteH : 10,
-                    closeSpriteW : 9,
-                    borderWidth : 1,
-                    borderColor : "#AAAAAA"
-
+                    optionsBackgroundColor : "#E4E4E4",
+                    optionsColor : "#333",
+                    optionsBorderWidth : 1,
+                    optionsBorderColor : "#AAAAAA",
+                    closeSpriteURL : "atskin/sprites/closemark.gif",
+                    closeSpriteHeight : 10,
+                    closeSpriteWidth : 9
                 }
             },
             ErrorList : {

@@ -20,7 +20,7 @@ Aria.classDefinition({
     $classpath : "aria.widgets.form.MultiAutoComplete",
     $extends : "aria.widgets.form.AutoComplete",
     $dependencies : ["aria.widgets.controllers.MultiAutoCompleteController", "aria.utils.Event", "aria.utils.Dom",
-            "aria.utils.Type", "aria.utils.Delegate", "aria.utils.Array", "aria.utils.Math"],
+            "aria.utils.Type", "aria.utils.Array", "aria.utils.Math"],
     $css : ["aria.widgets.form.MultiAutoCompleteStyle", "aria.widgets.form.list.ListStyle",
             "aria.widgets.container.DivStyle"],
     /**
@@ -62,7 +62,7 @@ Aria.classDefinition({
          * Override internal method not to update the input width incase of multi autocomplete
          * @param {Object} skinObj
          */
-        _setInputWidth : function () {
+        _computeInputWidth : function () {
             return;
         },
         /**
