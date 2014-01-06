@@ -64,9 +64,11 @@
                     textEntry = stringUtil.stripAccents(textEntry).toLowerCase();
 
                     var codeSuggestions = [], labelSuggestions = [], nbSuggestions = this._suggestions.length, textEntryLength = textEntry.length;
+                    var labelSuggestionsMultiWord = [];
                     var results = {};
                     var index, suggestion, isRangeValue = false;
                     var patt = this.rangePattern;
+                    var multiWord = this._labelMatchAtWordBoundaries;
                     if (this.allowRangeValues && patt.test(textEntry)) {
                         var firstLetter = textEntry.charAt(0);
                         var rangeV = textEntry.substring(1).split("-");
@@ -89,21 +91,34 @@
                                 codeSuggestions.push(suggestion.original);
                                 suggestion.original.exactMatch = false;
                             } else {
-                                if (suggestion.label.substring(0, textEntryLength) === textEntry) {
+                                var boundaries = multiWord ? suggestion.wordBoundaries : [0];
+                                for (var j = 0, len = boundaries.length, boundary; j < len; j++) {
+                                    boundary = boundaries[j];
+                                    if (suggestion.label.substring(boundary, boundary + textEntryLength) !== textEntry) {
+                                        continue;
+                                    }
+
                                     var exactMatch = suggestion.label === textEntry;
-                                    exactMatch = !isRangeValue && exactMatch;
+                                    var startsWithMatch = (boundary === 0);
+
+                                    // matches starting at the beginning are preferred - will be displayed higher
+                                    var suggestionsContainer = startsWithMatch
+                                            ? labelSuggestions
+                                            : labelSuggestionsMultiWord;
+                                    suggestion.original.multiWordMatch = !startsWithMatch; // other highlight modifier
                                     suggestion.original.exactMatch = exactMatch;
                                     if (exactMatch) {
-                                        labelSuggestions.unshift(suggestion.original);
+                                        suggestionsContainer.unshift(suggestion.original);
                                     } else {
-                                        labelSuggestions.push(suggestion.original);
+                                        suggestionsContainer.push(suggestion.original);
                                     }
+                                    break; // found a match starting from 'boundary', no need to search further
                                 }
                             }
                         }
                     }
 
-                    var suggestions = codeSuggestions.concat(labelSuggestions);
+                    var suggestions = codeSuggestions.concat(labelSuggestions).concat(labelSuggestionsMultiWord);
                     results.suggestions = suggestions;
                     results.multipleValues = isRangeValue;
                     this.$callback(callback, results);
