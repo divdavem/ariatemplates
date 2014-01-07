@@ -4,6 +4,10 @@ node_js:
 before_install:
   - npm config set ca ""
   - phantomjs --version
+install:
+  - npm install -g grunt-cli
+  - npm install
+  - (cd node_modules/noder-js && npm install)
 notifications:
   email:
     - build@ariatemplates.com
