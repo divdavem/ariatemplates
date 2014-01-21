@@ -59,71 +59,35 @@
              * @param {aria.core.CfgBeans.Callback} callback Called when suggestions are ready
              */
             getSuggestions : function (textEntry, callback) {
-
-                if (typesUtil.isString(textEntry) && textEntry.length >= this.threshold) {
-                    textEntry = stringUtil.stripAccents(textEntry).toLowerCase();
-
-                    var codeSuggestions = [], labelSuggestions = [], nbSuggestions = this._suggestions.length, textEntryLength = textEntry.length;
-                    var labelSuggestionsMultiWord = [];
-                    var results = {};
-                    var index, suggestion, isRangeValue = false;
-                    var patt = this.rangePattern;
-                    var multiWord = this._labelMatchAtWordBoundaries;
-                    if (this.allowRangeValues && patt.test(textEntry)) {
-                        var firstLetter = textEntry.charAt(0);
-                        var rangeV = textEntry.substring(1).split("-");
-                        isRangeValue = true;
-                    } else {
-                        var rangeV = [];
-                        rangeV[0] = 1;
-                        rangeV[1] = 1;
-                    }
+                if (!typesUtil.isString(textEntry) || textEntry.length < this.threshold) {
+                    this.$callback(callback, null);
+                    return;
+                }
+                textEntry = stringUtil.stripAccents(textEntry).toLowerCase();
+                if (this.allowRangeValues && this.rangePattern.test(textEntry)) {
+                    var firstLetter = textEntry.charAt(0);
+                    var rangeV = textEntry.substring(1).split("-");
+                    var results = {
+                        suggestions : [],
+                        multipleValues : true
+                    };
                     for (var k = rangeV[0]; k <= rangeV[1]; k++) {
-                        textEntry = firstLetter ? firstLetter + k : textEntry;
-                        textEntryLength = textEntry.length;
-                        for (index = 0; index < nbSuggestions; index++) {
-                            suggestion = this._suggestions[index];
-                            if (suggestion.code === textEntry) {
-                                suggestion.original.exactMatch = !isRangeValue && true;
-                                codeSuggestions.unshift(suggestion.original);
-                            } else if (suggestion.code.substring(0, textEntryLength) === textEntry
-                                    && !this.codeExactMatch) {
-                                codeSuggestions.push(suggestion.original);
-                                suggestion.original.exactMatch = false;
-                            } else {
-                                var boundaries = multiWord ? suggestion.wordBoundaries : [0];
-                                for (var j = 0, len = boundaries.length, boundary; j < len; j++) {
-                                    boundary = boundaries[j];
-                                    if (suggestion.label.substring(boundary, boundary + textEntryLength) !== textEntry) {
-                                        continue;
-                                    }
-
-                                    var exactMatch = suggestion.label === textEntry;
-                                    var startsWithMatch = (boundary === 0);
-
-                                    // matches starting at the beginning are preferred - will be displayed higher
-                                    var suggestionsContainer = startsWithMatch
-                                            ? labelSuggestions
-                                            : labelSuggestionsMultiWord;
-                                    suggestion.original.multiWordMatch = !startsWithMatch; // other highlight modifier
-                                    suggestion.original.exactMatch = exactMatch;
-                                    if (exactMatch) {
-                                        suggestionsContainer.unshift(suggestion.original);
-                                    } else {
-                                        suggestionsContainer.push(suggestion.original);
-                                    }
-                                    break; // found a match starting from 'boundary', no need to search further
-                                }
-                            }
-                        }
+                        var textEntry = firstLetter + k;
+                        this.$LCResourcesHandler.getSuggestions.call(this, textEntry, {
+                            fn : this.__appendSuggestions,
+                            scope : this,
+                            args : results
+                        });
                     }
-
-                    var suggestions = codeSuggestions.concat(labelSuggestions).concat(labelSuggestionsMultiWord);
-                    results.suggestions = suggestions;
-                    results.multipleValues = isRangeValue;
                     this.$callback(callback, results);
                 } else {
-                    this.$callback(callback, null);
+                    this.$LCResourcesHandler.getSuggestions.call(this, textEntry, callback);
+                }
+            },
+
+            __appendSuggestions : function (suggestions, results) {
+                if (suggestions) {
+                    results.suggestions = results.suggestions.concat(suggestions);
                 }
             }
 
