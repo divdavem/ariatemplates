@@ -154,7 +154,7 @@
                     dataModel.value = null;
                     report.ok = true;
                     reportVal = null;
-                } else if (value && !typeUtil.isString(value)) {
+                } else if (value && !typeUtil.isString(value) && dataModel.value !== null) {
                     if (this._checkWithSuggestionBean(value, this._resourcesHandler.SUGGESTION_BEAN)) {
                         var text = this._getLabelFromSuggestion(value);
                         dataModel.text = text;
@@ -296,6 +296,9 @@
                     } else {
                         if (!this.freeText && suggestionsAvailable && !hasSuggestions) {
                             report.ok = false;
+                            var errorReport = this.checkText(nextValue);
+                            this.widgetObj.changeProperty("formatErrorMessages", errorReport.errorMessages);
+                            errorReport.$dispose();
                         } else {
                             report.ok = true;
                         }

@@ -364,7 +364,11 @@ Aria.classDefinition({
                 // environment
                 cfg.directOnBlurValidation = aria.widgets.environment.WidgetSettings.getWidgetSettings().directOnBlurValidation;
             }
-
+            if (cfg.directOnErrorValidation == null) {
+                // the default value for directOnErrorValidation comes from the
+                // environment
+                cfg.directOnErrorValidation = aria.widgets.environment.WidgetSettings.getWidgetSettings().directOnErrorValidation;
+            }
             if (cfg.height > -1) {
                 this._inputMarkupHeight = cfg.height;
 

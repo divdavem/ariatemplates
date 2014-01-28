@@ -14,52 +14,49 @@
  */
 
 Aria.classDefinition({
-    $classpath : "test.aria.widgets.form.autocomplete.multiautocomplete.test7.MultiAutoError",
+    $classpath : "test.aria.widgets.form.autocomplete.errorhandling.AutoComplete",
     $extends : "aria.jsunit.TemplateTestCase",
     $constructor : function () {
         this.$TemplateTestCase.constructor.call(this);
-
-        this.data = {
-            ac_airline_values : []
-        };
-
-        // setTestEnv has to be invoked before runTemplateTest fires
-        this.setTestEnv({
-            template : "test.aria.widgets.form.autocomplete.multiautocomplete.test7.MultiAutoErrorTpl",
-            data : this.data
-        });
-
     },
     $prototype : {
         /**
-         * This method is always the first entry point to a template test Start the test by focusing the first field
+         * This method is always the first entry point to a template test Start the test by focusing the first field.
+         * Initially give the field focus.
          */
         runTemplateTest : function () {
-
-            this.synEvent.click(this.getInputField("MultiAutoId"), {
-                fn : this.typeSomething,
+            this.synEvent.click(this.getInputField("acDest"), {
+                fn : this.onAcFocused,
                 scope : this
             });
         },
 
-        typeSomething : function (evt, callback) {
-            // give it the time to open a drop down
-            this.synEvent.type(this.getInputField("MultiAutoId"), "az", {
-                fn : this._wait,
-                scope : this,
-                args : this._assertErrorState
+        /**
+         * Field should have focus, next trigger an exact match.
+         */
+        onAcFocused : function () {
+            this.synEvent.type(this.getInputField("acDest"), "z", {
+                fn : this.onDelay,
+                scope : this
             });
         },
-        _wait : function (evt, callback) {
+
+        /**
+         * Need to add a delay to allow the list to open with the returned suggestions including the exact match.
+         */
+        onDelay : function () {
             aria.core.Timer.addCallback({
-                fn : callback,
+                fn : this.checkErrorTooltip,
                 scope : this,
                 delay : 500
             });
         },
-        _assertErrorState : function () {
-            // test that the field is in error state
-            var acWidget = this.getWidgetInstance("MultiAutoId");
+        /**
+         * Finalize the test, check the bound widgets value has been updated by a change to the data model when the
+         * enter key was triggered.
+         */
+        checkErrorTooltip : function () {
+            var acWidget = this.getWidgetInstance("acDest");
             this.assertTrue(acWidget._state == "normalErrorFocused", "The auto-complete should be in the normalErrorFocused state.");
             this.assertTrue(!!acWidget._onValidatePopup);
             this.notifyTemplateTestEnd();

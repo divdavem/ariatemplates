@@ -711,6 +711,14 @@ Aria.classDefinition({
                     || propertyName === 'errorMessages') {
                 this._cfg[propertyName] = newValue;
                 this._reactToChange();
+                var cfg = this._cfg;
+                if (cfg && cfg.validationEvent === 'onError') {
+                    if ((cfg.formatError && cfg.formatErrorMessages.length) || (cfg.error && cfg.errorMessages.length)) {
+                        this._validationPopupShow();
+                    } else {
+                        this._validationPopupHide();
+                    }
+                }
             } else if (propertyName == "prefill") {
                 this.setPrefillText(true, newValue, true);
             } else if (propertyName == "prefillError") {
@@ -812,7 +820,6 @@ Aria.classDefinition({
                 this.checkValue();
             }
         },
-
         /**
          * Internal method to handle the onkeyup event. This is called to set the value property in the data model
          * through the setProperty method that also handles all other widgets bound to this value.

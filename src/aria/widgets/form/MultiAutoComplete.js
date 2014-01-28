@@ -20,7 +20,7 @@ Aria.classDefinition({
     $classpath : "aria.widgets.form.MultiAutoComplete",
     $extends : "aria.widgets.form.AutoComplete",
     $dependencies : ["aria.widgets.controllers.MultiAutoCompleteController", "aria.utils.Event", "aria.utils.Dom",
-            "aria.utils.Type", "aria.utils.Array", "aria.utils.Math"],
+            "aria.utils.Type", "aria.utils.Array", "aria.utils.Math", "aria.utils.String"],
     $css : ["aria.widgets.form.MultiAutoCompleteStyle", "aria.widgets.form.list.ListStyle",
             "aria.widgets.container.DivStyle"],
     /**
@@ -37,6 +37,7 @@ Aria.classDefinition({
 
         this._hideIconNames = ["dropdown"];
         controller.maxOptions = cfg.maxOptions;
+        controller.widgetObj = this;
     },
 
     $statics : {
@@ -85,7 +86,6 @@ Aria.classDefinition({
             if (report && report.value !== null) {
                 this._addMultiselectValues(report, arg);
             }
-
         },
 
         /**
@@ -269,13 +269,15 @@ Aria.classDefinition({
             var inputField = this.getTextInputField();
             var inputFieldValue = inputField.value;
             var domUtil = aria.utils.Dom;
-            if (tabPressed && inputFieldValue !== "") {
+            var stringUtil = aria.utils.String;
+            if (tabPressed && stringUtil.trim(inputFieldValue) !== "" && this.controller.freeText) {
                 event.preventDefault();
                 var report = this.controller.checkText(inputFieldValue, false);
                 this._reactToControllerReport(report);
                 this.setHelpText(false);
+                inputField.focus();
             }
-            if (tabPressed && inputFieldValue === "" && inputField.nextSibling != null) {
+            if (tabPressed && stringUtil.trim(inputFieldValue) === "" && inputField.nextSibling != null) {
                 event.preventDefault();
                 this._makeInputFieldLastChild();
                 this.setHelpText(false);
@@ -292,7 +294,6 @@ Aria.classDefinition({
                     domUtil.removeElement(previousSiblingElement);
                     this._removeValues(previousSiblingLabel);
                 }
-
             }
             this.$DropDownTextInput._dom_onkeydown.call(this, event);
         },
