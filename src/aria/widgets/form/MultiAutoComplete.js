@@ -37,7 +37,6 @@ Aria.classDefinition({
 
         this._hideIconNames = ["dropdown"];
         controller.maxOptions = cfg.maxOptions;
-        controller.widgetObj = this;
     },
 
     $statics : {
@@ -86,6 +85,7 @@ Aria.classDefinition({
             if (report && report.value !== null) {
                 this._addMultiselectValues(report, arg);
             }
+
         },
 
         /**
@@ -294,6 +294,7 @@ Aria.classDefinition({
                     domUtil.removeElement(previousSiblingElement);
                     this._removeValues(previousSiblingLabel);
                 }
+
             }
             this.$DropDownTextInput._dom_onkeydown.call(this, event);
         },

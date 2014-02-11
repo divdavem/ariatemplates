@@ -45,11 +45,6 @@ Aria.beanDefinitions({
                     $description : "Whether validation on input widgets is automatically called by default on blur.",
                     $default : true
                 },
-                "directOnErrorValidation" : {
-                    $type : "json:Boolean",
-                    $description : "Whether validation on input widgets is automatically called by default on keydown.",
-                    $default : false
-                },
                 "autoselect" : {
                     $type : "json:Boolean",
                     $description : "Specifies whether display text should be highlighted when the field is clicked.",

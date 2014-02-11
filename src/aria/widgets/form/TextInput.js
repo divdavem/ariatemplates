@@ -436,9 +436,6 @@ Aria.classDefinition({
                 if (!performCheckOnly) {
                     this.changeProperty("value", null);
                     this.changeProperty("invalidText", text);
-                    if (this._cfg.directOnBlurValidation) {
-                        this.changeProperty("formatErrorMessages", report.errorMessages);
-                    }
                 }
             } else if (this._cfg.formatError === false && aria.utils.Type.isArray(this._cfg.formatErrorMessages)
                     && this._cfg.formatErrorMessages.length) {
@@ -508,6 +505,11 @@ Aria.classDefinition({
                     }
 
                 }
+
+                if (report.errorMessages.length && this._cfg.directOnBlurValidation) {
+                    this.changeProperty("formatErrorMessages", report.errorMessages);
+                }
+
                 // if the validation originated from a validation with delay we
                 // do not want to update the input text or
                 // value. The value will be set to 'undefined' though when the
@@ -712,7 +714,7 @@ Aria.classDefinition({
                 this._cfg[propertyName] = newValue;
                 this._reactToChange();
                 var cfg = this._cfg;
-                if (cfg && cfg.validationEvent === 'onError') {
+                if (cfg && cfg.validationEvent === 'onError' && (this._keepFocus || this._hasFocus)) {
                     if ((cfg.formatError && cfg.formatErrorMessages.length) || (cfg.error && cfg.errorMessages.length)) {
                         this._validationPopupShow();
                     } else {

@@ -246,10 +246,6 @@ Aria.beanDefinitions({
                     $type : "json:Boolean",
                     $description : "Whether validation on input widgets is automatically called by default on blur."
                 },
-                "directOnErrorValidation" : {
-                    $type : "json:Boolean",
-                    $description : "Whether validation on input widgets is automatically called by default on keydown."
-                },
                 "validationGroups" : {
                     $type : "json:Array",
                     $description : "Contains groups that validation should occur for onblur.",

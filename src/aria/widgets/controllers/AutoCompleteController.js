@@ -372,9 +372,7 @@
                     } else {
                         if (!this.freeText && suggestionsAvailable && !hasSuggestions) {
                             report.ok = false;
-                            var errorReport = this.checkText(nextValue);
-                            this.widgetObj.changeProperty("formatErrorMessages", errorReport.errorMessages);
-                            errorReport.$dispose();
+                            report.errorMessages.push(this.res.errors["40020_WIDGET_AUTOCOMPLETE_VALIDATION"]);
                         } else {
                             report.ok = true;
                         }
