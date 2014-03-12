@@ -192,7 +192,7 @@ Aria.classDefinition({
             this.$AutoComplete._dom_onclick.call(this, event);
             var element = event.target;
             if (element.className === "closeBtn") {
-                this._removeMultiselectValues(element, event);
+                this._removeMultiselectValue(element, event);
                 this._textInputField.focus();
             }
             if (element.className.indexOf("xMultiAutoComplete_Option_Text") != -1) {
@@ -250,7 +250,6 @@ Aria.classDefinition({
          */
 
         _updateMultiselectValues : function (report) {
-            var controller = this.controller;
             var inputField = this._textInputField;
             var inputFieldParent = inputField.parentNode;
             if (report.clearSuggestions) {
@@ -268,9 +267,6 @@ Aria.classDefinition({
                 aria.utils.Dom.insertAdjacentHTML(inputField, "beforeBegin", suggestionsMarkup.join(""));
                 this.__createEllipsis(inputField);
                 this._makeInputFieldLastChild();
-                if (controller.editMode) {
-                    controller.editMode = false;
-                }
                 inputField.style.width = "0px";
                 this.__resizeInput();
             }
@@ -448,14 +444,14 @@ Aria.classDefinition({
                                 }
                             }
 
-                            this._removeValues(highlightedElementLabel);
+                            this._removeValue(highlightedElementLabel);
                         } else {
                             var previousSiblingElement = domUtil.getPreviousSiblingElement(inputField);
                             if (previousSiblingElement) {
                                 var previousSiblingLabel = previousSiblingElement.firstChild.textContent
                                         || previousSiblingElement.firstChild.innerText;
                                 domUtil.removeElement(previousSiblingElement);
-                                this._removeValues(previousSiblingLabel);
+                                this._removeValue(previousSiblingLabel);
                             }
                         }
                         event.preventDefault();
@@ -479,7 +475,7 @@ Aria.classDefinition({
                                 this._enterInputField();
                             }
 
-                            this._removeValues(highlightedElementLabel);
+                            this._removeValue(highlightedElementLabel);
                         }
                     }
 
@@ -503,12 +499,12 @@ Aria.classDefinition({
          * @param {aria.utils.Event} event
          * @param {Boolean} if current element is a parent element itself
          */
-        _removeMultiselectValues : function (domElement, event, isParent) {
+        _removeMultiselectValue : function (domElement, event, isParent) {
             var parent = (!isParent) ? domElement.parentNode : domElement;
             var domUtil = aria.utils.Dom;
             var label = parent.firstChild.textContent || parent.firstChild.innerText;
             domUtil.removeElement(parent);
-            this._removeValues(label);
+            this._removeValue(label);
             if (event && event.type == "click") {
                 this.getTextInputField().focus();
 
@@ -526,31 +522,27 @@ Aria.classDefinition({
             var domUtil = aria.utils.Dom;
             label = domElement.textContent || domElement.innerText;
             domUtil.replaceDomElement(domElement.parentNode, this._textInputField);
-            this.controller.editMode = true;
-            this._removeValues(label);
+            var removedSuggestion = this._removeValue(label);
             this._textInputField.focus();
-            // to select the edited text.
             this._keepFocus = true;
-            // this._textInputField.style.width = "0px";
-            var report = this.controller.checkText("");
-            report.text = label;
-            report.caretPosStart = 0;
-            report.caretPosEnd = label.length;
-            this._reactToControllerReport(report);
-            // after setting the value removing focus
+            if (removedSuggestion) {
+                var report = this.controller.editValue(removedSuggestion);
+                this._reactToControllerReport(report);
+            }
             this._keepFocus = false;
-
         },
         /**
          * To remove the label from widget
          * @param {String} label
          * @protected
          */
-        _removeValues : function (label) {
+        _removeValue : function (label) {
             var report = this.controller.removeValue(label);
+            var removedSuggestion = report.removedSuggestion;
             this._reactToControllerReport(report);
             this._textInputField.style.width = "0px";
             this.__resizeInput();
+            return removedSuggestion;
         },
         /**
          * Method used to get a dom reference for positioning the popup
