@@ -61,10 +61,14 @@ Aria.classDefinition({
                         label : "Scandinavian Airlines System",
                         code : "SK"
                     }]);
-            this.clickAndType(["q", "[down][enter]"], {
-                fn : this._afterChange,
-                scope : this
-            }, 500);
+            this.type({
+                text : ["q", "[down][enter]"],
+                cb : {
+                    fn : this._afterChange,
+                    scope : this
+                },
+                delay : 500
+            });
         },
 
         _afterChange : function () {

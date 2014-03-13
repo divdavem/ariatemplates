@@ -52,10 +52,14 @@ Aria.classDefinition({
 
         _afterWaitSomeTime : function () {
             this.checkDataModel(1, ["a"]);
-            this.clickAndType(["k", "[enter]"], {
-                fn : this._afterChange,
-                scope : this
-            }, 500);
+            this.type({
+                text : ["k", "[enter]"],
+                cb : {
+                    fn : this._afterChange,
+                    scope : this
+                },
+                delay : 500
+            });
         },
 
         _afterChange : function () {
