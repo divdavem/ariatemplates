@@ -200,7 +200,6 @@ Aria.classDefinition({
                 var index = this._getIndexFromNode(element.parentNode);
                 if (this.controller.freeText && aria.utils.Json.equals(highlightedSuggestions, [index])) {
                     this._editMultiselectValue(element);
-                    this._textInputField.focus();
                 } else {
                     this.highlightOption(index);
                 }
@@ -327,8 +326,8 @@ Aria.classDefinition({
                 if (inputField.nextSibling != null && inputField.value === "") {
                     this._makeInputFieldLastChild();
                 }
-            } else if (blurredElement.className.indexOf("highlight") != -1) {
-                this.unhighlightOption(blurredElement);
+            } else if (blurredElement.parentNode.className.indexOf("highlight") != -1) {
+                this.unhighlightOption(blurredElement.parentNode);
             }
 
             this.$TextInput._dom_onblur.call(this, event);
@@ -523,14 +522,27 @@ Aria.classDefinition({
             label = domElement.textContent || domElement.innerText;
             domUtil.replaceDomElement(domElement.parentNode, this._textInputField);
             var removedSuggestion = this._removeValue(label);
-            this._textInputField.focus();
             this._keepFocus = true;
+            this._textInputField.focus();
             if (removedSuggestion) {
                 var report = this.controller.editValue(removedSuggestion);
                 this._reactToControllerReport(report);
             }
+            this._restoreKeepFocus();
+        },
+
+        _restoreKeepFocus : aria.core.Browser.isIE ? function () {
+            var self = this;
+            // The focus is asynchronous on IE, so we need to set _keepFocus back to false
+            // only after the _dom_onfocus method was called
+            self._keepFocus = true;
+            setTimeout(function () {
+                self._keepFocus = false;
+            }, 1);
+        } : function () {
             this._keepFocus = false;
         },
+
         /**
          * To remove the label from widget
          * @param {String} label
@@ -602,7 +614,7 @@ Aria.classDefinition({
 
             if (suggestionNode != null) {
                 this._removeClass(suggestionNode, 'highlight');
-                suggestionNode.removeAttribute('tabindex');
+                suggestionNode.firstChild.removeAttribute('tabindex');
             }
         },
 
@@ -636,8 +648,8 @@ Aria.classDefinition({
             }
 
             if (latestSuggestionNode != null) {
-                latestSuggestionNode.setAttribute('tabindex', 0);
-                latestSuggestionNode.focus();
+                latestSuggestionNode.firstChild.setAttribute('tabindex', 0);
+                latestSuggestionNode.firstChild.focus();
             }
         },
 
@@ -673,8 +685,8 @@ Aria.classDefinition({
             var suggestionNode = this._getSuggestionsContainer().children[index - 1];
 
             this._addClass(suggestionNode, 'highlight');
-            suggestionNode.setAttribute('tabindex', 0);
-            suggestionNode.focus();
+            suggestionNode.firstChild.setAttribute('tabindex', 0);
+            suggestionNode.firstChild.focus();
         },
 
         /**

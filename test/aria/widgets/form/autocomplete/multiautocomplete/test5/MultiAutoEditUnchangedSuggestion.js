@@ -49,6 +49,14 @@ Aria.classDefinition({
         },
 
         _afterSecondClick : function () {
+            aria.core.Timer.addCallback({
+                scope : this,
+                fn : this._afterWaitSomeTime,
+                delay : 10
+            });
+        },
+
+        _afterWaitSomeTime : function () {
             this.checkDataModel(1, [{
                         label : "Scandinavian Airlines System",
                         code : "SK"
