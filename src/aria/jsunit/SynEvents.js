@@ -30,6 +30,7 @@ Aria.classDefinition({
     },
     $prototype : {
         _keys : {
+            "BACKSPACE" : "BACK_SPACE",
             "CTRL" : "CONTROL",
             "\t" : "TAB",
             " " : "SPACE",
@@ -273,8 +274,8 @@ Aria.classDefinition({
             if (aria.utils.Type.isHTMLElement(geometry)) {
                 res = domUtils.getGeometry(geometry);
                 // TODO: check if the item is really visible
-            } else if (geometry.hasOwnProperty("x") && geometry.hasOwnProperty("y") &&
-                    geometry.hasOwnProperty("width") && geometry.hasOwnProperty("height")) {
+            } else if (geometry.hasOwnProperty("x") && geometry.hasOwnProperty("y") && geometry.hasOwnProperty("width")
+                    && geometry.hasOwnProperty("height")) {
                 res = geometry;
             } else {
                 // FIXME: log error correctly

@@ -15,10 +15,10 @@
 
 Aria.classDefinition({
     $classpath : "test.aria.widgets.form.autocomplete.multiautocomplete.BaseMultiAutoCompleteTestCase",
-    $extends : "aria.jsunit.TemplateTestCase",
+    $extends : "aria.jsunit.RobotTestCase",
     $dependencies : ["aria.utils.Type", "aria.utils.Math"],
     $constructor : function () {
-        this.$TemplateTestCase.constructor.call(this);
+        this.$RobotTestCase.constructor.call(this);
 
         this.data = this.data || {
             ac_airline_values : [],
