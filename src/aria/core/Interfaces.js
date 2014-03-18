@@ -268,15 +268,12 @@ var Aria = require("../Aria");
                     superInterface = Aria.getClassRef(def.$extends);
                     if (!superInterface) {
                         this.$logError(this.BASE_INTERFACE_UNDEFINED, [classpath, def.$extends]);
-                        // FIXME: check error handling
-                        debugger;
                         throw new Error(this.BASE_INTERFACE_UNDEFINED);
                     }
                     var parentCstr = superInterface ? superInterface.interfaceDefinition : null;
                     parentCstr = parentCstr ? parentCstr.$noargConstructor : null;
                     if (!parentCstr) {
                         this.$logError(this.WRONG_BASE_INTERFACE, [classpath, def.$extends]);
-                        debugger;
                         throw new Error(this.WRONG_BASE_INTERFACE);
                     }
                     proto = new parentCstr();

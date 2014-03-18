@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "at-noder-converter": "git+https://github.com/divdavem/at-noder-converter#master",
-    "atpackager": "0.2.2",
+    "atpackager": "git+https://github.com/divdavem/atpackager#master",
     "attester": "git+https://github.com/attester/attester#master",
     "express": "3.4.8",
     "grunt": "0.4.2",

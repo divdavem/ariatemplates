@@ -39,7 +39,7 @@ module.exports = function (grunt) {
                     noderEnvironment : environment,
                     noderConfigOptions : {
                         main : mainFile,
-                        failFast: false,
+                        failFast : false,
                         resolver : {
                             "default" : {
                                 ariatemplates : "aria"
@@ -87,6 +87,14 @@ module.exports = function (grunt) {
                         cfg : {
                             keepRequiresTop : true,
                             files : ['aria/**/*.js']
+                        }
+                    }, {
+                        type : 'CheckGlobals',
+                        cfg : {
+                            files : ["**/*.js", "!aria/noderError/**"],
+                            allowCommonJSGlobals : true,
+                            allowedGlobals : ["aria", "Aria", "setTimeout", "clearTimeout", "setInterval",
+                                    "clearInterval", "global"]
                         }
                     }, {
                         type : 'JSStripBanner',

@@ -21,23 +21,10 @@ module.exports = function (grunt) {
     grunt.config.set('jshint', {
         options : require('../config/jshint.json'),
         build : {
-            options : require('../config/jshint-build.json'),
             src : ['src/aria/node.js', 'Gruntfile.js', 'build/config/*.json', 'build/grunt-tasks/*.js',
                     'build/grunt-config/*.js', 'build/*.js']
         },
         source : {
-            options : {
-                node : true,
-                "debug" : true, // FIXME: set it to false for production
-                "globals" : {
-                    "aria" : false,
-                    "Aria" : true, // allowing to override this global
-                    "setTimeout" : false,
-                    "setInterval" : false,
-                    "clearTimeout" : false,
-                    "clearInterval" : false
-                }
-            },
             src : ['src/aria/**/*.js',
                     // Using node.js globals
                     '!src/aria/node.js',
@@ -55,7 +42,6 @@ module.exports = function (grunt) {
                         '!test/aria/templates/reloadResources/ExternalResourceErr.js']
             },
             options : {
-                node : true,
                 "unused" : false,
                 "globals" : {
                     "aria" : false,
@@ -72,7 +58,6 @@ module.exports = function (grunt) {
         node : {
             src : ['test/node/**/*.js'],
             options : {
-                "node" : true,
                 "globals" : {
                     "aria" : false,
                     "Aria" : false,
