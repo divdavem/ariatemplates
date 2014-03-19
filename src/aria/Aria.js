@@ -1246,7 +1246,7 @@ var Aria = module.exports = global.Aria;
                     } else if (defResources[k].hasOwnProperty("provider")) {
                         var resProviderInfo = defResources[k]["aria:resProviderInfo"];
                         resProviderInfo.clsProto = p;
-                        p[k] = asyncRequire(resProviderLoaderModulePath).load(resProviderInfo);
+                        p[k] = require(resProviderLoaderModulePath).load(resProviderInfo);
                     } else {
                         p[k] = Aria.getClassRef(defResources[k]);
                     }
