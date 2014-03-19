@@ -16,6 +16,7 @@
 module.exports = function (grunt) {
     grunt.config.set('atpackager.bootstrapSkin', {
         options : {
+            ATDebug : true,
             ATBootstrapFile : '<%= packaging.main_file %>',
             ATDirectories : ['<%= packaging.bootstrap.outputdir %>'],
             sourceDirectories : ['src'],
