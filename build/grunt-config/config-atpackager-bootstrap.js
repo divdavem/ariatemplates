@@ -91,7 +91,7 @@ module.exports = function (grunt) {
                     }, {
                         type : 'CheckGlobals',
                         cfg : {
-                            files : ["**/*.js", "!aria/noderError/**"],
+                            files : '<%= packaging.check_globals.files %>',
                             allowCommonJSGlobals : true,
                             allowedGlobals : ["aria", "Aria", "setTimeout", "clearTimeout", "setInterval",
                                     "clearInterval", "global"]

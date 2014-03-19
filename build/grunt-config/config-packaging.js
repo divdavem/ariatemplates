@@ -17,6 +17,7 @@ module.exports = function (grunt) {
     grunt.config.set('packaging.locales', require('../config/locales.json'));
     grunt.config.set('packaging.bootstrap.outputdir', 'build/target/bootstrap');
     grunt.config.set('packaging.bootstrap.files', require('../config/files-bootstrap.json'));
+    grunt.config.set('packaging.check_globals.files', ['**/*.js', '!aria/noderError/**']);
     grunt.config.set('packaging.prod.outputdir', 'build/target/production');
     grunt.config.set('packaging.prod.files', require('../config/files-prod.json'));
     grunt.config.set('packaging.prod.source_files', ['**/*', '!aria/node.js']);
