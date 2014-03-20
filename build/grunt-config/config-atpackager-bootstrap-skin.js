@@ -25,7 +25,8 @@ module.exports = function (grunt) {
             visitors : [{
                         type : 'ATNormalizeSkin',
                         cfg : {
-                            files : ['aria/css/*.js']
+                            files : ['aria/css/*.js'],
+                            strict : true
                         }
                     }, {
                         type : 'CopyUnpackaged',
