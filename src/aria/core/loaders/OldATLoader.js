@@ -15,8 +15,9 @@
 
 var Aria = require('../../Aria.js');
 var promise = require('noder-js/promise.js');
+var currentContext = require('noder-js/currentContext.js');
 
-module.exports = function (module, content, url) {
+module.exports = function (module, content) {
     var defer = promise();
     var savedValue = Aria.$oldModuleLoader;
     try {
@@ -25,30 +26,29 @@ module.exports = function (module, content, url) {
             continueLoading : function (dependencies, loadCallback) {
                 if (dependencies.length === 0) {
                     module.exports = loadCallback();
-                    defer.resolve(module);
+                    currentContext.moduleDefine(module, [], promise.empty);
+                    defer.resolve();
                     return module.exports;
                 } else {
                     var continueLoadingDefer = promise();
-                    defer.resolve({
-                        dependencies : dependencies,
-                        definition : function (module) {
-                            for (var i = 0, l = dependencies.length; i < l; i++) {
-                                var item = dependencies[i];
-                                if (typeof item == "string") {
-                                    module.require(item);
-                                }
+                    currentContext.moduleDefine(module, dependencies, function (module) {
+                        for (var i = 0, l = dependencies.length; i < l; i++) {
+                            var item = dependencies[i];
+                            if (typeof item == "string") {
+                                module.require(item);
                             }
-                            module.exports = loadCallback();
-                            continueLoadingDefer.resolve(module.exports);
-                            continueLoadingDefer = null;
                         }
+                        module.exports = loadCallback();
+                        continueLoadingDefer.resolve(module.exports);
+                        continueLoadingDefer = null;
                     });
+                    defer.resolve();
                     return continueLoadingDefer.promise();
                 }
             },
             error : defer.reject
         };
-        Aria.eval(content, url);
+        Aria.eval(content, module.url);
         // the previous Aria.eval should contain Aria.classDefinition (or equivalent) which
         // uses Aria.$oldModuleLoader and removes it from Aria
         if (Aria.$oldModuleLoader) {

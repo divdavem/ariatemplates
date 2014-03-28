@@ -1,9 +1,25 @@
+/*
+ * Copyright 2012 Amadeus s.a.s.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 var promise = require('noder-js/promise');
 var request = require('noder-js/request');
 var typeUtils = require('noder-js/type');
 var findRequires = require('noder-js/findRequires');
 var scriptBaseUrl = require('noder-js/scriptBaseUrl');
 var ParentLoader = require('noder-js/loader');
+var bind1 = require('noder-js/bind1');
 
 var bind = function (fn, scope) {
     return function () {
@@ -11,18 +27,10 @@ var bind = function (fn, scope) {
     };
 };
 
-var oldATClassRequiresPropName = "_ATModuleRequires";
-var defaultLoaderInstance = function (module, content) {
-    // isOldATClass may have called findRequires with the same content
-    // here, we reuse the result of isOldATClass in case it is available to avoid
-    // calling findRequires twice
-    var dependencies = module[oldATClassRequiresPropName];
-    delete module[oldATClassRequiresPropName];
-    return {
-        definition : content,
-        dependencies : dependencies
-    };
-};
+var tplFileNameRegExp = /\.(tpl(\.css|\.txt)?|cml|tml)$/;
+var oldATClassRegExp = /Aria\s*\.\s*(class|interface|bean|tplScript)Definition(s?)\s*\(/;
+var downloadMgrPath = "ariatemplates/core/DownloadMgr";
+var oldATLoaderPath = "ariatemplates/core/loaders/OldATLoader";
 
 var Loader = function (context) {
     var config = context.config.packaging || {};
@@ -44,38 +52,20 @@ var Loader = function (context) {
     } else if (config.baseUrl == null) {
         config.baseUrl = Aria.rootFolderPath;
     }
-
+    var preprocessors = config.preprocessors;
+    if (!preprocessors) {
+        config.preprocessors = preprocessors = [];
+    }
+    preprocessors.push({
+        pattern : tplFileNameRegExp,
+        module : "ariatemplates/core/loaders/GeneralTplPreprocessor"
+    });
     this.parentLoader = new ParentLoader(context);
+    this.parentLoader.parentLoadUnpackaged = bind(this.parentLoader.loadUnpackaged, this.parentLoader);
     this.parentLoader.loadUnpackaged = bind(this.loadUnpackaged, this);
+    this.parentLoader.defineUnpackaged = bind(this.defineUnpackaged, this);
 
     this.context = context;
-    this.templateClassLoaders = {
-        ".tpl" : {
-            path : "ariatemplates/core/loaders/TplLoader.js"
-        },
-        ".tpl.css" : {
-            path : "ariatemplates/core/loaders/CSSLoader.js"
-        },
-        ".tpl.txt" : {
-            path : "ariatemplates/core/loaders/TxtLoader.js"
-        },
-        ".cml" : {
-            path : "ariatemplates/core/loaders/CmlLoader.js"
-        },
-        ".tml" : {
-            path : "ariatemplates/core/loaders/TmlLoader.js"
-        }
-    };
-    this.oldATClassLoader = {
-        path : "ariatemplates/core/loaders/OldATLoader.js"
-    };
-    this.oldATClassRegExp = /Aria\s*\.\s*(class|interface|bean|tplScript)Definition(s?)\s*\(/;
-    this.defaultLoader = {
-        instance : defaultLoaderInstance
-    };
-    this.downloadMgr = {
-        path : "ariatemplates/core/DownloadMgr.js"
-    };
 };
 
 var LoaderProto = Loader.prototype = {};
@@ -84,141 +74,67 @@ LoaderProto.moduleLoad = function (module) {
     return this.parentLoader.moduleLoad(module);
 };
 
-LoaderProto.downloadModule = function (params) {
-    var self = this;
-    var logicalPath = params.module.filename;
-    // only use the download manager if it is already loaded
-    var useDownloadMgr = self.getDependencyModule(self.downloadMgr).loaded;
-    if (useDownloadMgr) {
-        var res = promise();
-        this.loadDependency(self.downloadMgr).then(function () {
-            var downloadMgr = self.downloadMgr.instance;
-            params.url = downloadMgr.resolveURL(logicalPath, true);
-            downloadMgr.loadFile(params.module.filename, {
-                scope : self,
-                fn : function () {
-                    var fileContent = downloadMgr.getFileContent(logicalPath);
-                    if (fileContent == null) {
-                        res.reject(new Error("Error while downloading " + logicalPath));
-                    } else {
-                        res.resolve(fileContent);
-                    }
-                }
-            });
-        });
-        return res;
-    } else {
-        params.url = this.parentLoader.baseUrl + logicalPath;
-        return request(params.url);
-    }
-};
-
-// main entry point
-LoaderProto.loadUnpackaged = function (module) {
-    var self = this;
-    var params = {
-        module : module,
-        extension : getExtension(module.filename)
-    };
-    return this.downloadModule(params).then(function (fileContent) {
-        params.content = fileContent;
-        params.loader = self.selectLoader(params);
-        return self.loadDependency(params.loader);
-    }).then(function () {
-        return self.useLoader(params);
-    });
-};
-
-var getExtension = function (filename) {
-    var withoutPath = filename.replace(/^(.*\/)?([^/]*)$/, "$2");
-    var dot = withoutPath.indexOf('.');
-    if (dot > -1) {
-        return withoutPath.substr(dot);
-    }
-    return "";
-};
-
-LoaderProto.isOldATClass = function (params) {
-    var fileContent = params.content;
-    var dependencies = findRequires(fileContent, true);
-    if (dependencies.length == 0 && this.oldATClassRegExp.test(fileContent)) {
-        return true;
-    }
-    params.module[oldATClassRequiresPropName] = dependencies;
-    return false;
-};
-
-var firstComment = /^\s*\/\*[\s\S]*?\*\//;
-var alreadyGeneratedRegExp = /^\s*Aria\.classDefinition\(/;
-
-LoaderProto.isTemplateCompiled = function (params) {
-    var fileContent = params.content;
-    fileContent = fileContent.replace(firstComment, ''); // removes first comment
-    return alreadyGeneratedRegExp.test(fileContent);
-};
-
-LoaderProto.selectLoader = function (params) {
-    var extension = params.extension;
-    if (extension === ".js") {
-        if (this.isOldATClass(params)) {
-            return this.oldATClassLoader;
-        }
-    } else if (this.templateClassLoaders.hasOwnProperty(extension)) {
-        if (this.isTemplateCompiled(params)) {
-            return this.oldATClassLoader;
-        } else {
-            return this.templateClassLoaders[extension];
-        }
-    }
-    return this.defaultLoader;
-};
-
-LoaderProto.getDependencyModule = function (dependency) {
-    if (!dependency.module) {
+LoaderProto.isDownloadMgrUsable = function () {
+    if (!this.downloadMgr) {
         var context = this.context;
-        dependency.module = context.getModule(context.moduleResolve(context.rootModule, dependency.path));
+        this.downloadMgr = context.getModule(context.moduleResolve(context.rootModule, downloadMgrPath));
     }
-    return dependency.module;
+    return this.downloadMgr.loaded;
 };
 
-LoaderProto.loadDependency = function (dependency) {
-    if (dependency.instance) {
-        // already loaded!
-        return promise.done;
-    }
-    return this.context.moduleExecute(this.getDependencyModule(dependency)).then(function (res) {
-        dependency.instance = res;
-    });
-};
-
-LoaderProto.useLoader = function (params) {
-    var self = this;
-    var loader = params.loader.instance;
-    return promise.when(loader(params.module, params.content, params.url)).then(function (res) {
-        if (res === params.module) {
-            // a return value containing the module object is a shortcut meaning the module was already defined directly
-            // through module.exports
-            res = {
-                definition : promise.empty
-            };
-        } else {
-            if (!typeUtils.isPlainObject(res)) {
-                res = {
-                    definition : res
-                };
-            }
-            if (typeUtils.isString(res.definition)) {
-                if (!res.dependencies) {
-                    res.dependencies = findRequires(res.definition, true);
-                }
-                res.definition = self.context.jsModuleEval(res.definition, params.url);
-            }
-            if (!typeUtils.isFunction(res.definition)) {
-                throw new Error("Invalid response from loader (when trying to load " + params.module.filename + ").");
+LoaderProto.downloadModule = function (module) {
+    var res = promise();
+    var logicalPath = module.filename;
+    var downloadMgr = this.downloadMgr.exports;
+    module.url = downloadMgr.resolveURL(logicalPath, true);
+    downloadMgr.loadFile(logicalPath, {
+        scope : this,
+        fn : function () {
+            var fileContent = downloadMgr.getFileContent(logicalPath);
+            if (fileContent == null) {
+                res.reject(new Error("Error while downloading " + logicalPath));
+            } else {
+                res.resolve(fileContent);
             }
         }
-        self.context.moduleDefine(params.module, res.dependencies || [], res.definition);
     });
+    return res.promise();
+};
+
+// first entry point: if it is present, use the DownloadMgr to download files
+LoaderProto.loadUnpackaged = function (module) {
+    if (this.isDownloadMgrUsable()) {
+        return this.downloadModule(module).then(bind1(this.parentLoader.preprocessUnpackaged, this.parentLoader, module));
+    } else {
+        return this.parentLoadUnpackaged(module);
+    }
+};
+
+// second entry point: process old AT classes if needed
+LoaderProto.defineUnpackaged = function (module, fileContent) {
+    var context = this.context;
+    var newSyntax = !tplFileNameRegExp.test(module.filename); // templates still use the old syntax
+    if (newSyntax) {
+        var dependencies = findRequires(fileContent, true);
+        // classes containing require or without Aria.xDefinition are using the new syntax
+        newSyntax = dependencies.length > 0 || !oldATClassRegExp.test(fileContent);
+        if (newSyntax) {
+            var definition = context.jsModuleEval(fileContent, module.url);
+            context.moduleDefine(module, dependencies, definition);
+            return;
+        }
+    }
+    // old syntax, let's delegate the work to the old loader
+    var oldATLoader = this.oldATLoader;
+    if (oldATLoader) {
+        return oldATLoader(module, fileContent);
+    } else {
+        var self = this;
+        return context.moduleAsyncRequire(context.rootModule, [oldATLoaderPath]).thenSync(function (oldATLoader) {
+            self.oldATLoader = oldATLoader;
+            return oldATLoader(module, fileContent);
+        });
+    }
 };
 
 module.exports = Loader;

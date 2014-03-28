@@ -13,17 +13,16 @@
  * limitations under the License.
  */
 
-// Creates a loader for a specific class generator
+// Creates a preprocessor for a specific class generator
 var promise = require('noder-js/promise.js');
-var oldATLoader = require('./OldATLoader.js');
 
 module.exports = function (classGenerator) {
-    return function (module, content, url) {
+    return function (content, fileName) {
         var defer = promise();
         classGenerator.parseTemplate(content, false, function (res) {
-            oldATLoader(module, res.classDef, url).then(defer.resolve, defer.reject);
+            defer.resolve(res.classDef);
         }, {
-            "file_classpath" : module.filename
+            "file_classpath" : fileName
         });
         return defer.promise();
     };

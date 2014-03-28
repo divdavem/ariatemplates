@@ -13,5 +13,5 @@
  * limitations under the License.
  */
 
-var baseLoader = require('./TplBaseLoader.js');
+var baseLoader = require('./TplBasePreprocessor');
 module.exports = baseLoader(require('../../templates/CSSClassGenerator.js'));

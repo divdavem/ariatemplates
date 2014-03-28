@@ -23,11 +23,11 @@
     "test": "npm run-script lint && npm run-script grunt && npm run-script mocha && npm run-script attester"
   },
   "dependencies" : {
-    "noder-js": "git+https://github.com/ariatemplates/noder-js#master"
+    "noder-js": "git+https://github.com/divdavem/noder-js#preprocessors"
   },
   "devDependencies": {
     "at-noder-converter": "git+https://github.com/divdavem/at-noder-converter#master",
-    "atpackager": "git+https://github.com/divdavem/atpackager#master",
+    "atpackager": "0.2.3",
     "attester": "git+https://github.com/attester/attester#master",
     "express": "3.4.8",
     "grunt": "0.4.2",
