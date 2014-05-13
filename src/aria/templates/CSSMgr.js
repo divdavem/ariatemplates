@@ -136,6 +136,8 @@ Aria.classDefinition({
          */
         this.__textLoaded = {};
 
+        this.__contextArgs = {};
+
         /**
          * Since we are using a pool of style tags, keep track of where each css classpath is loaded
          * @type Object
@@ -316,15 +318,7 @@ Aria.classDefinition({
             var classes = [];
             for (var i = 0, len = dependencies.length; i < len; i += 1) {
                 var cssClasspath = dependencies[i];
-                // this object will be used for configuration and changed,
-                // as this is a loop on dependencies, make a copy - PTR 04543463
-                var localContextArgs = {};
-                for (var key in contextArgs) {
-                    if (contextArgs.hasOwnProperty(key)) {
-                        localContextArgs[key] = contextArgs[key];
-                    }
-                }
-                changes = this.__load(classpath, cssClasspath, localContextArgs).concat(changes);
+                changes = this.__load(classpath, cssClasspath, contextArgs).concat(changes);
 
                 if (this.__prefixes[cssClasspath]) {
                     // The prefix is created by __load if needed
@@ -367,11 +361,26 @@ Aria.classDefinition({
             }
 
             // Starting from here, nobody is using this css, it should also be added to the DOM
+            var styleTag = this.__refreshCssClasspath(cssClasspath, contextArgs);
 
+            this.__pathsLoaded.push(cssClasspath);
+            return [styleTag];
+        },
+
+        __refreshCssClasspath : function (cssClasspath, contextArgs) {
             // classpath may be invalid but not currently used
             delete this.__invalidClasspaths[cssClasspath];
 
-            var cssCtxt = aria.templates.CSSCtxtManager.getContext(cssClasspath, contextArgs);
+            var contextArgs = this.__contextArgs[cssClasspath] = contextArgs || this.__contextArgs[cssClasspath];
+            // this object will be used for configuration and changed,
+            // as this is a loop on dependencies, make a copy - PTR 04543463
+            var localContextArgs = {};
+            for (var key in contextArgs) {
+                if (contextArgs.hasOwnProperty(key)) {
+                    localContextArgs[key] = contextArgs[key];
+                }
+            }
+            var cssCtxt = aria.templates.CSSCtxtManager.getContext(cssClasspath, localContextArgs);
             // Give a prefix to the Global file in order to have higher priority
             if (cssClasspath == "aria.templates.GlobalStyle" || cssClasspath == "aria.templates.LegacyGeneralStyle"
                     || cssClasspath == "aria.widgets.GlobalStyle") {
@@ -391,9 +400,20 @@ Aria.classDefinition({
             // Build the association between this classpath and a style tag
             var styleTag = this.__getStyleTag(cssCtxt);
             this.__styleTagAssociation[cssClasspath] = styleTag;
+            return styleTag;
+        },
 
-            this.__pathsLoaded.push(cssClasspath);
-            return [styleTag];
+        refresh : function () {
+            aria.templates.CSSCtxtManager.reset();
+            var styleTags = {};
+            var textLoaded = this.__textLoaded;
+            for (var cssClasspath in textLoaded) {
+                if (textLoaded.hasOwnProperty(cssClasspath)) {
+                    var styleTag = this.__refreshCssClasspath(cssClasspath)
+                    styleTags[styleTag] = 1;
+                }
+            }
+            this.__textToDOM(aria.utils.Object.keys(styleTags));
         },
 
         /**
@@ -508,6 +528,7 @@ Aria.classDefinition({
                     // No other templates depend on this class
                     delete this.__cssUsage[cssClasspath];
                     delete this.__textLoaded[cssClasspath];
+                    delete this.__contextArgs[cssClasspath];
                     // keep the prefix in case the css comes back
                 }
             } // else should never be reached
@@ -685,6 +706,7 @@ Aria.classDefinition({
 
             // Reset the variables
             this.__textLoaded = {};
+            this.__contextArgs = {};
             this.__pathsLoaded = [];
             this.__prefixes = {};
             this.__cssUsage = {};
