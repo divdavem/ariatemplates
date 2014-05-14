@@ -120,6 +120,7 @@ Aria.classDefinition({
             this.subTplCtxt.$dispose();
             this.subTplCtxt = null;
         }
+        this._deleteTplcfg();
         this.$BaseWidget.$destructor.apply(this, arguments);
     },
     $prototype : {
