@@ -47,7 +47,9 @@ Aria.classDefinition({
             }
             var navigator = Aria.$window.navigator;
             try {
-                var res = navigator && navigator.javaEnabled();
+                // The Java Robot makes FF 3.6 crash
+                var oldFF = aria.core.Browser.isFF && aria.core.Browser.majorVersion < 4;
+                var res = !oldFF && navigator && navigator.javaEnabled();
                 if (res) {
                     return "aria.jsunit.RobotJavaApplet";
                 }
