@@ -28,7 +28,21 @@ Aria.classDefinition({
 
         runTemplateTest : function () {
             this.inputField = this.getInputField(0);
-            this._ASClick(this.inputField, this._testAS, this);
+                this._ASClick(this.inputField, function() {
+                    this.waitFor({
+                        condition : function () {
+                            var inputField = this.inputField;
+                            return aria.core.Browser.isOldIE
+                                || (inputField.selectionStart === 0 && inputField.selectionEnd === inputField.value.length);
+                        },
+                        callback : {
+                            fn : this._testAS,
+                            scope : this
+                        }
+                    })
+                },
+                this
+            );
         },
 
         _testAS : function () {
