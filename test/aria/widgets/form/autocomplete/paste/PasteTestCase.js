@@ -33,11 +33,16 @@ Aria.classDefinition({
                 field.value = "japan";
             });
 
-            aria.core.Timer.addCallback({
-                fn : this.onPaste,
-                scope : this,
-                delay : 1000
+            this.waitFor({
+                condition : function () {
+                    return !!this.getWidgetDropDownPopup("ac");
+                },
+                callback : {
+                    fn : this.onPaste,
+                    scope : this
+                }
             });
+
         },
 
         /**
@@ -51,10 +56,15 @@ Aria.classDefinition({
             var collector = aria.utils.Dom.getElementById("clickCollector");
             Syn.click(collector);
 
-            aria.core.Timer.addCallback({
-                fn : this.onBlur,
-                scope : this,
-                delay : 500
+            this.waitFor({
+                condition : function () {
+                    // Wait for the dropdown to be close
+                    return !this.getWidgetDropDownPopup("ac") && this.templateCtxt.data.value.label == "Japan";
+                },
+                callback : {
+                    fn : this.onBlur,
+                    scope : this
+                }
             });
         },
 
@@ -92,10 +102,14 @@ Aria.classDefinition({
                 field.value = "";
             });
 
-            aria.core.Timer.addCallback({
-                fn : this.onCut,
-                scope : this,
-                delay : 1000
+            this.waitFor({
+                condition : function () {
+                    return field.value == "" && !this.getWidgetDropDownPopup("ac");
+                },
+                callback : {
+                    fn : this.onCut,
+                    scope : this
+                }
             });
         },
 
@@ -110,10 +124,14 @@ Aria.classDefinition({
             Syn.click(collector); // click listeners are not added when DropDown is closed
             this.getInputField("ac").blur();
 
-            aria.core.Timer.addCallback({
-                fn : this.onBlurCut,
-                scope : this,
-                delay : 500
+            this.waitFor({
+                condition : function () {
+                    return !this.getWidgetDropDownPopup("ac") && !this.templateCtxt.data.value;
+                },
+                callback : {
+                    fn : this.onBlurCut,
+                    scope : this
+                }
             });
         },
 
