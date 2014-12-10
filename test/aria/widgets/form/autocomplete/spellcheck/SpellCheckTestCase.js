@@ -45,10 +45,15 @@ Aria.classDefinition({
 
         _step1 : function () {
             // wait for the popup to be there
-            aria.core.Timer.addCallback({
-                fn : this._step2,
-                scope : this,
-                delay : 1000
+            this.waitFor({
+                condition : function () {
+                    return !!this.getWidgetDropDownPopup("myAutoComplete")
+                        &&  aria.utils.Dom.getElementById("testSpellingSuggestion") != null;
+                },
+                callback : {
+                    fn : this._step2,
+                    scope : this
+                }
             });
         },
 
@@ -56,21 +61,23 @@ Aria.classDefinition({
             this._assertErrorState();
             // typing again in the field should remove the error state:
             this.synEvent.type("s", this.ac, {
-                fn : this._step3,
+                fn : function() {
+                    this.waitFor({
+                        condition : function () {
+                            return this.acWidget._state == "normalFocused"
+                                && aria.utils.Dom.getElementById("testSpellingSuggestion") == null;
+                        },
+                        callback : {
+                            fn : this._step3,
+                            scope : this
+                        }
+                    });
+                },
                 scope : this
             });
         },
 
         _step3 : function () {
-            // wait for the popup to be there
-            aria.core.Timer.addCallback({
-                fn : this._step4,
-                scope : this,
-                delay : 1000
-            });
-        },
-
-        _step4 : function () {
             this._assertNormalState();
             // this._assertErrorState();
             this.notifyTemplateTestEnd();
