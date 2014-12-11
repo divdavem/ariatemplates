@@ -589,6 +589,30 @@ module.exports = Aria.classDefinition({
             return this.getWidgetDomElement(templateWidgetId, "a");
         },
 
+        waitForWidgetFocus : function (widgetId, cb) {
+            this.waitFor({
+                condition : function () {
+                    return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") != -1;
+                },
+                callback : {
+                    fn : cb,
+                    scope : this
+                }
+            });
+        },
+
+        waitForWidgetBlur : function (widgetId, cb) {
+            this.waitFor({
+                condition : function () {
+                    return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") == -1;
+                },
+                callback : {
+                    fn : cb,
+                    scope : this
+                }
+            });
+        },
+
         _findInHierarchy : function (node, widgetID, context) {
             var contextUpdated = false;
             if (node.type == "template") {

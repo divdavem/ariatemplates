@@ -16,19 +16,11 @@ Aria.classDefinition({
             this.ms.focus();
 
             // Wait for the field to be focused
-            this.waitFor({
-                condition : function () {
-                    return this.msDom.getElementsByTagName("span")[0].className.indexOf("xMultiSelect_std_normalFocused") > -1;
-                },
-                callback : {
-                    fn : function() {
-                        this.synEvent.type(this.ms, "AF,AC,DL,AY", {
-                            fn : this._afterTyping,
-                            scope : this
-                        });
-                    },
+            this.waitForWidgetFocus("ms1", function() {
+                this.synEvent.type(this.ms, "AF,AC,DL,AY", {
+                    fn : this._afterTyping,
                     scope : this
-                }
+                });
             });
         },
 
@@ -37,16 +29,8 @@ Aria.classDefinition({
 
             this.getInputField("myTextField").focus();
 
-            // Wait for the field to be blured
-            this.waitFor({
-                condition : function () {
-                    return this.msDom.getElementsByTagName("span")[0].className.indexOf("xMultiSelect_std_normalFocused") == -1;
-                },
-                callback : {
-                    fn : this.finishTest,
-                    scope : this
-                }
-            });
+            // Wait for the ms field to be blured
+            this.waitForWidgetFocus("myTextField", this.finishTest);
 
         },
 
