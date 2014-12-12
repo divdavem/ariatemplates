@@ -592,7 +592,8 @@ module.exports = Aria.classDefinition({
         waitForWidgetFocus : function (widgetId, cb) {
             this.waitFor({
                 condition : function () {
-                    return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") != -1;
+                    //return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") != -1;
+                    return this.getInputField(widgetId) === Aria.$window.document.activeElement;
                 },
                 callback : {
                     fn : cb,
@@ -604,7 +605,8 @@ module.exports = Aria.classDefinition({
         waitForWidgetBlur : function (widgetId, cb) {
             this.waitFor({
                 condition : function () {
-                    return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") == -1;
+                    //return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") == -1;
+                    return this.getInputField(widgetId) !== Aria.$window.document.activeElement;
                 },
                 callback : {
                     fn : cb,
@@ -679,9 +681,12 @@ module.exports = Aria.classDefinition({
          */
         clickAndType : function (id, text, callback, blur) {
             this.synEvent.click(this.getInputField(id), {
-                fn : this.__afterClick,
-                scope : this,
-                args : [id, text, callback, blur]
+                fn : function() {
+                    this.waitForWidgetFocus(id, function() {
+                        this.__afterClick.call(this, null, [id, text, callback, blur]);
+                    });
+                },
+                scope : this
             });
         },
 

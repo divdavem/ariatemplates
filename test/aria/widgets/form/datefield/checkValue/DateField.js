@@ -35,7 +35,7 @@ Aria.classDefinition({
                     this.focusDate(null, ["date1", "date"]);
                 },
                 scope : this,
-                delay : 50
+                delay : 25
             });
         },
         focusDate : function () {

@@ -25,7 +25,7 @@ Aria.classDefinition({
          */
         runTemplateTest : function () {
             this.synEvent.click(this.getInputField("ac"), {
-                fn : this.typeSomething,
+                fn : this.waitForWidgetFocus("ac", this.typeSomething),
                 scope : this
             });
         },
@@ -37,10 +37,14 @@ Aria.classDefinition({
             });
         },
         wait : function () {
-            aria.core.Timer.addCallback({
-                fn : this.checkDropdownlist,
-                scope : this,
-                delay : 500
+            this.waitFor({
+                condition : function () {
+                    return !!this.getWidgetDropDownPopup("ac");
+                },
+                callback : {
+                    fn : this.checkDropdownlist,
+                    scope : this
+                }
             });
         },
 

@@ -52,21 +52,13 @@ Aria.classDefinition({
             this.expandButton = this.getExpandButton("myId");
 
             aria.utils.SynEvents.click(this.expandButton, {
-                fn : this._afterClick,
+                fn : this.waitForWidgetFocus("myId", this._afterClick),
                 scope : this
             });
         },
 
         _afterClick : function () {
             this.cont += 1;
-            aria.core.Timer.addCallback({
-                fn : this._afterTimer,
-                scope : this,
-                delay : 500
-            });
-        },
-
-        _afterTimer : function () {
             this.dropdown = this.getWidgetDropDownPopup("myId");
             this.options = this.getElementsByClassName(this.dropdown, "xListEnabledItem_dropdown");
 
@@ -94,18 +86,28 @@ Aria.classDefinition({
         },
 
         _afterItemClick : function () {
-            if (this.cont === 1) {
-                this.assertTrue(this.inputField.value === "option 0");
-                aria.core.Timer.addCallback({
-                    fn : this._afterSecondTimer,
-                    scope : this,
-                    delay : 500
-                });
-            } else {
-                this.inputField = this.getInputField("myId");
-                this.assertTrue(this.inputField.value === "option 1");
-                this.end();
-            }
+            this.waitFor({
+                condition : function () {
+                    return !this.getWidgetDropDownPopup("myId");
+                },
+                callback : {
+                    fn : function() {
+                        if (this.cont === 1) {
+                            this.assertTrue(this.inputField.value === "option 0");
+                            aria.core.Timer.addCallback({
+                                fn : this._afterSecondTimer,
+                                scope : this,
+                                delay : 500
+                            });
+                        } else {
+                            this.inputField = this.getInputField("myId");
+                            this.assertTrue(this.inputField.value === "option 1");
+                            this.end();
+                        }
+                    },
+                    scope : this
+                }
+            });
         },
 
         _afterSecondTimer : function () {

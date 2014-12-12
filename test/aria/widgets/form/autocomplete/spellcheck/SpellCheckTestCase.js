@@ -26,11 +26,20 @@ Aria.classDefinition({
     },
     $prototype : {
         runTemplateTest : function () {
+            aria.core.Timer.addCallback({
+                fn : this.start,
+                scope : this,
+                delay : 25
+            });
+        },
+        start : function () {
             this.acWidget = this.getWidgetInstance("myAutoComplete");
             this.ac = this.getInputField("myAutoComplete");
             this.acWidget.focus();
             this.synEvent.click(this.acWidget, {
-                fn : this.onUserClick,
+                fn : function() {
+                    this.waitForWidgetFocus("myAutoComplete", this.onUserClick);
+                },
                 scope : this
             });
         },

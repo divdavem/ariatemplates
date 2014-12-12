@@ -21,6 +21,13 @@ Aria.classDefinition({
     },
     $prototype : {
         runTemplateTest : function () {
+            aria.core.Timer.addCallback({
+                fn : this.start,
+                scope : this,
+                delay : 25
+            });
+        },
+        start : function () {
             var field = this.getInputField("ac");
 
             this.templateCtxt.$focus("ac");
