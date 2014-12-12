@@ -60,6 +60,7 @@ Aria.classDefinition({
             this.assertEquals(data.events.length, 2, "There should be %2 events instead of %1");
             this.assertEquals(data.events[0], "mouseenter on right container", "The first event should be a '%2' instead of '%1'");
             this.assertEquals(data.events[1], "mouseleave on right container", "The second event should be a '%2' instead of '%1'");
+            this.assertEquals(data.events[2], undefined, "The third event shouldn't exits, having %1 instead");
 
             data.events = [];
 

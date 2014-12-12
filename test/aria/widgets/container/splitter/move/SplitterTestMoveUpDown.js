@@ -52,8 +52,8 @@ Aria.classDefinition({
             });
         },
         _afterIncBtnClick : function () {
-            this.assertTrue(this.splitter._splitPanel1.style.height === "250px");
-            this.assertTrue(this.splitter._splitPanel2.style.height === "142px");
+            this.assertEquals(this.splitter._splitPanel1.style.height, "250px", "splitPanel1 should be %2 height instead of %1");
+            this.assertEquals(this.splitter._splitPanel2.style.height, "142px", "splitPanel1 should be %2 height instead of %1");
 
             var btn = this.getWidgetInstance("btnDec").getDom();
             var self = this;
@@ -70,8 +70,8 @@ Aria.classDefinition({
 
         },
         _afterDecBtnClick : function () {
-            this.assertTrue(this.splitter._splitPanel1.style.height === "200px");
-            this.assertTrue(this.splitter._splitPanel2.style.height === "192px");
+            this.assertEquals(this.splitter._splitPanel1.style.height, "200px", "splitPanel1 should be %2 height instead of %1");
+            this.assertEquals(this.splitter._splitPanel2.style.height, "192px", "splitPanel1 should be %2 height instead of %1");
 
             var args = {
                 destPosY : 100,
