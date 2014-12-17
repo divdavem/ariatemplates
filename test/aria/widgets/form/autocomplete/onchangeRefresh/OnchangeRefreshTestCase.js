@@ -38,7 +38,7 @@ Aria.classDefinition({
          */
         runTemplateTest : function () {
             this.synEvent.click(this.getInputField("acDest"), {
-                fn : this.onAcFocused,
+                fn : function() {this.waitForWidgetFocus("acDest", this.onAcFocused)},
                 scope : this
             });
         },
@@ -51,7 +51,16 @@ Aria.classDefinition({
         },
 
         onAcOpened : function () {
-            setTimeout(aria.utils.Function.bind(this.afterDelay, this), 1000);
+            this.waitFor({
+                condition : function () {
+                    // Wait for the dropdown to be close
+                    return this.getWidgetDropDownPopup("acDest");
+                },
+                callback : {
+                    fn : this.afterDelay,
+                    scope : this
+                }
+            });
         },
 
         afterDelay : function () {
@@ -59,7 +68,17 @@ Aria.classDefinition({
             aria.utils.FireDomEvent.fireEvent('keydown', this.getInputField("acDest"), {
                 keyCode : aria.DomEvent.KC_TAB
             });
-            setTimeout(aria.utils.Function.bind(this.finishTest, this), 1000);
+            this.waitFor({
+                msg: "Waiting for data model change",
+                condition : function () {
+                    // Wait for the dropdown to be close
+                    return this.templateCtxt.data.ac_air_value != null && this.templateCtxt.data.refresh === 1;
+                },
+                callback : {
+                    fn : this.finishTest,
+                    scope : this
+                }
+            });
         },
 
         finishTest : function () {
