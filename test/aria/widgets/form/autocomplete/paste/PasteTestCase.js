@@ -32,7 +32,7 @@ Aria.classDefinition({
 
             this.templateCtxt.$focus("ac");
 
-            var evt = new Syn("paste", field, {
+            new Syn("paste", field, {
                 ctrlKey : true,
                 keyCode : 86
                 // v
@@ -102,7 +102,7 @@ Aria.classDefinition({
 
             this.templateCtxt.$focus("ac");
 
-            var evt = new Syn("cut", field, {
+            new Syn("cut", field, {
                 ctrlKey : true,
                 keyCode : 88
                 // x
@@ -112,7 +112,7 @@ Aria.classDefinition({
 
             this.waitFor({
                 condition : function () {
-                    return field.value == "" && !this.getWidgetDropDownPopup("ac");
+                    return field.value === "" && !this.getWidgetDropDownPopup("ac");
                 },
                 callback : {
                     fn : this.onCut,

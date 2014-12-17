@@ -190,7 +190,7 @@ Aria.classDefinition({
                     },
                     scope : this
                 }
-            })
+            });
         },
         /**
          * Wrapper to end the tests.

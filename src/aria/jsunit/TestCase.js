@@ -407,7 +407,8 @@ module.exports = Aria.classDefinition({
                     if (waitForStatus.ongoing) {
                         var errorMsg = "Assert " + testName + ", waitFor #" + waitForStatus.count + " has time out";
                         if (waitForStatus.msg) {
-                            errorMsg += ": " + waitForStatus.msg;
+                            var msg = waitForStatus.msg;
+                            errorMsg += ": " + (typeof(msg) == "function" ? msg.call(this) : msg);
                         }
 
                         error = new Error(errorMsg);
