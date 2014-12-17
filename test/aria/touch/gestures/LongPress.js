@@ -173,6 +173,7 @@ Aria.classDefinition({
          */
         _testEvents : function (args) {
             this.waitFor({
+                msg: "Waiting for the sequence to be equals to [" + this.templateCtxt.data.events.join(", ") + "]",
                 condition : function () {
                     return args.sequence.length == this.templateCtxt.data.events.length;
                 },
