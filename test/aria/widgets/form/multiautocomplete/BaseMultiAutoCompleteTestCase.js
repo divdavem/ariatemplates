@@ -158,9 +158,20 @@ Aria.classDefinition({
         },
         _fireClickOnSuggestion : function (index, continueWith) {
             var suggestionToBeHighlighted = this._suggestionToBeHighlighted(index);
+
             this.synEvent.click(suggestionToBeHighlighted, {
                 scope : this,
-                fn : continueWith
+                fn : function() {
+                    this.waitFor({
+                        condition : function () {
+                            return !this.getWidgetDropDownPopup("MultiAutoId");
+                        },
+                        callback : {
+                            fn : continueWith,
+                            scope : this
+                        }
+                    });
+                }
             });
         },
         checkHighlightedElementsIndices : function (expectedHighlightedArray) {

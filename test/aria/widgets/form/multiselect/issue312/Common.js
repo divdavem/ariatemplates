@@ -104,12 +104,14 @@ Aria.classDefinition({
             };
             var outerWidget = this.getWidgetInstance("widget");
             outerWidget.focus();
-            aria.core.Timer.addCallback({
-                fn : function() {
-                    outerWidget._toggleDropdown();
-                },
-                scope : this,
-                delay : 25
+            this.waitForWidgetFocus("widget", function() {
+                aria.core.Timer.addCallback({
+                    fn : function() {
+                        outerWidget._toggleDropdown();
+                    },
+                    scope : this,
+                    delay : 25
+                });
             });
         },
 

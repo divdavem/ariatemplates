@@ -41,6 +41,7 @@ Aria.classDefinition({
             });
 
             this.waitFor({
+                msg: "Waiting for dropdown to be closed",
                 condition : function () {
                     return !!this.getWidgetDropDownPopup("ac");
                 },

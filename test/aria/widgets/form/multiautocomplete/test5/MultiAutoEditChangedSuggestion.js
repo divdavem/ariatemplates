@@ -53,13 +53,46 @@ Aria.classDefinition({
                         label : "Scandinavian Airlines System",
                         code : "SK"
                     }]);
+
             this.type({
-                text : ["q", "[down][enter]"],
+                text : ["q"],
                 cb : {
-                    fn : this._afterChange,
+                    fn : function() {
+                        this.waitFor({
+                            condition : function () {
+                                return this.getWidgetDropDownPopup("MultiAutoId");
+                            },
+                            callback : {
+                                fn : this._afterLastDropdownOpen,
+                                scope : this
+                            }
+                        });
+                    },
                     scope : this
                 },
-                delay : 500
+                delay : 25
+            });
+
+        },
+
+        _afterLastDropdownOpen : function () {
+            this.type({
+                text : ["[down][enter]"],
+                cb : {
+                    fn : function() {
+                        this.waitFor({
+                            condition : function () {
+                                return !this.getWidgetDropDownPopup("MultiAutoId");
+                            },
+                            callback : {
+                                fn : this._afterChange,
+                                scope : this
+                            }
+                        });
+                    },
+                    scope : this
+                },
+                delay : 25
             });
         },
 
