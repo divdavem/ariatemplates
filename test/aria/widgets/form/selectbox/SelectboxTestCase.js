@@ -52,7 +52,7 @@ Aria.classDefinition({
             this.expandButton = this.getExpandButton("myId");
 
             aria.utils.SynEvents.click(this.expandButton, {
-                fn : this.waitForWidgetFocus("myId", this._afterClick),
+                fn : function() {this.waitForWidgetFocus("myId", this._afterClick)},
                 scope : this
             });
         },

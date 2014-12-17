@@ -30,7 +30,7 @@ Aria.classDefinition({
     $prototype : {
         runTemplateTest : function () {
             this.synEvent.click(this.getInputField("tf1"), {
-                fn : this.waitForWidgetFocus("tf1", this.onFieldFocused),
+                fn : function() {this.waitForWidgetFocus("tf1", this.onFieldFocused)},
                 scope : this
             });
         },

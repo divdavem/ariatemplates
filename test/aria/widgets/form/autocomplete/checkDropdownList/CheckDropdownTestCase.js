@@ -25,7 +25,7 @@ Aria.classDefinition({
          */
         runTemplateTest : function () {
             this.synEvent.click(this.getInputField("ac"), {
-                fn : this.waitForWidgetFocus("ac", this.typeSomething),
+                fn : function() {this.waitForWidgetFocus("ac", this.typeSomething)},
                 scope : this
             });
         },

@@ -34,7 +34,7 @@ Aria.classDefinition({
         },
         focusDate : function () {
             this.synEvent.click(this.getInputField("date1"), {
-                fn : this.waitForWidgetFocus("date1", this.typeDate),
+                fn : function() {this.waitForWidgetFocus("date1", this.typeDate)},
                 scope : this
             });
         },
@@ -46,7 +46,7 @@ Aria.classDefinition({
         },
         focusDate2 : function () {
             this.synEvent.click(this.getInputField("date2"), {
-                fn : this.waitForWidgetFocus("date2", this.typeDate2),
+                fn : function() {this.waitForWidgetFocus("date2", this.typeDate2)},
                 scope : this
             });
         },
@@ -58,7 +58,7 @@ Aria.classDefinition({
         },
         focusDate3 : function () {
             this.synEvent.click(this.getInputField("date3"), {
-                fn : this.waitForWidgetFocus("date3", this.typeDate3),
+                fn : function() {this.waitForWidgetFocus("date3", this.typeDate3)},
                 scope : this
             });
         },
@@ -70,7 +70,7 @@ Aria.classDefinition({
         },
         focusDate4 : function () {
             this.synEvent.click(this.getInputField("date4"), {
-                fn : this.waitForWidgetFocus("date4", this.checkDate4),
+                fn : function() {this.waitForWidgetFocus("date4", this.checkDate4)},
                 scope : this
             });
         },
@@ -82,7 +82,7 @@ Aria.classDefinition({
         },
         focusText : function () {
             this.synEvent.click(this.getInputField("text1"), {
-                fn : this.waitForWidgetFocus("text1", this.finishTest),
+                fn : function() {this.waitForWidgetFocus("text1", this.finishTest)},
                 scope : this
             });
         },
