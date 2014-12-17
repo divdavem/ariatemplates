@@ -79,6 +79,17 @@ module.exports = Aria.classDefinition({
         this._testPassed = 0;
 
         /**
+         * Wait for information. Usefull to localize a failing waitFor
+         * @type Number
+         * @protected
+         */
+        this._waitForStatus = {
+            count : 0,
+            msg: null,
+            ongoing: false
+        };
+
+        /**
          * Copy of the appenvironment application settings
          * @type Object
          * @private
@@ -266,8 +277,16 @@ module.exports = Aria.classDefinition({
             var delay = args.delay || 250;
             var condition = args.condition;
 
+            var waitForStatus = this._waitForStatus;
+            waitForStatus.count++;
+            waitForStatus.msg = args.msg;
+            waitForStatus.ongoing = true;
+
             var timeoutFn = function () {
                 if (this.$callback(condition)) {
+                    waitForStatus.msg = null;
+                    waitForStatus.ongoing = false;
+
                     this.$callback(args.callback);
                 } else {
                     ariaCoreTimer.addCallback({
@@ -381,8 +400,21 @@ module.exports = Aria.classDefinition({
             }
             var error = new Error("Assert " + testName + " has timed out");
 
+
             this._timeoutTimer = ariaCoreTimer.addCallback({
-                fn : this.handleAsyncTestError,
+                fn : function(error) {
+                    var waitForStatus = this._waitForStatus;
+                    if (waitForStatus.ongoing) {
+                        var errorMsg = "Assert " + testName + ", waitFor #" + waitForStatus.count + " has time out";
+                        if (waitForStatus.msg) {
+                            errorMsg += ": " + waitForStatus.msg;
+                        }
+
+                        error = new Error(errorMsg);
+                    }
+
+                    this.handleAsyncTestError(error);
+                },
                 scope : this,
                 delay : timeout,
                 args : error
