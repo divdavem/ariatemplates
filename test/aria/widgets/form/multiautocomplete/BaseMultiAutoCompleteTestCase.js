@@ -63,11 +63,24 @@ Aria.classDefinition({
 
         type : function (evt, args) {
             args = args || evt;
-            this.synEvent.type(this.getFocusedElement(), args.text.shift(), {
+
+            var nextText = args.text.shift();
+
+            var cb = {
                 fn : this.__wait,
                 scope : this,
                 args : args
-            });
+            };
+
+            if (typeof(nextText) == "function") {
+                this.waitFor({
+                    condition: nextText,
+                    callback : cb
+                });
+            } else {
+                // nextText is a string
+                this.synEvent.type(this.getFocusedElement(), nextText, cb);
+            }
         },
 
         __wait : function (evt, args) {
@@ -83,6 +96,14 @@ Aria.classDefinition({
             }
             cb.delay = args.delay;
             aria.core.Timer.addCallback(cb);
+        },
+
+        dropdownOpenCondition : function () {
+            return this.getWidgetDropDownPopup("MultiAutoId");
+        },
+
+        dropdownCloseCondition : function () {
+            return !this.getWidgetDropDownPopup("MultiAutoId");
         },
 
         checkSelectedItems : function (count, labels) {
