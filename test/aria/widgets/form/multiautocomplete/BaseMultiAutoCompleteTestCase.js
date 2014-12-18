@@ -47,7 +47,11 @@ Aria.classDefinition({
                 text = [text];
             }
             this.synEvent.click(this._getField(), {
-                fn : this.type,
+                fn : function(evt, args) {
+                    this.waitForWidgetFocus("MultiAutoId", function() {
+                        this.type(args);
+                    });
+                },
                 scope : this,
                 args : {
                     text : text,
