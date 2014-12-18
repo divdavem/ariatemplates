@@ -590,10 +590,13 @@ module.exports = Aria.classDefinition({
         },
 
         waitForWidgetFocus : function (widgetId, cb) {
+            this.waitForDomEltFocus(this.getInputField(widgetId), cb);
+        },
+
+        waitForDomEltFocus : function (domElt, cb) {
             this.waitFor({
                 condition : function () {
-                    //return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") != -1;
-                    return this.getInputField(widgetId) === Aria.$window.document.activeElement;
+                    return domElt === Aria.$window.document.activeElement;
                 },
                 callback : {
                     fn : cb,
@@ -603,10 +606,13 @@ module.exports = Aria.classDefinition({
         },
 
         waitForWidgetBlur : function (widgetId, cb) {
+            this.waitForDomEltBlur(this.getInputField(widgetId), cb);
+        },
+
+        waitForDomEltBlur : function (domElt, cb) {
             this.waitFor({
                 condition : function () {
-                    //return this.getWidgetInstance(widgetId)._domElt.getElementsByTagName("span")[0].className.indexOf("Focused") == -1;
-                    return this.getInputField(widgetId) !== Aria.$window.document.activeElement;
+                    return domElt !== Aria.$window.document.activeElement;
                 },
                 callback : {
                     fn : cb,
