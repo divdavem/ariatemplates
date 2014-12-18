@@ -140,8 +140,13 @@ Aria.classDefinition({
         },
 
         focusOut : function (cb) {
-            this.synEvent.click(this.getElementById("justToFocusOut"), {
-                fn : this._onFocusOut,
+            var dom = this.getElementById("justToFocusOut");
+            this.synEvent.click(dom, {
+                fn : function(evt, cb) {
+                    this.waitForDomEltFocus(dom, function() {
+                        this._onFocusOut(null, cb);
+                    })
+                },
                 scope : this,
                 args : cb
             });
@@ -209,19 +214,26 @@ Aria.classDefinition({
         },
 
         toggleOption : function (id, index, continueWith) {
-            aria.core.Timer.addCallback({
-                fn : function () {
-                    var checkBox = this.getCheckBox(id, index).getDom();
-                    if (checkBox) {
-                        this.synEvent.click(checkBox, {
-                            fn : continueWith,
-                            scope : this
+            var checkBox = this.getCheckBox(id, index).getDom();
+            var inputElt = checkBox.getElementsByTagName("input")[0];
+            var isChecked = inputElt.checked;
+            if (checkBox) {
+                this.synEvent.click(checkBox, {
+                    fn : function() {
+                        this.waitFor({
+                            msg: "Waiting for dropdown to be closed",
+                            condition : function () {
+                                return isChecked != inputElt.checked;
+                            },
+                            callback : {
+                                fn : continueWith,
+                                scope : this
+                            }
                         });
-                    }
-                },
-                scope : this,
-                delay : 1000
-            });
+                    },
+                    scope : this
+                });
+            }
         },
         getCheckBox : function (msId, index) {
             var ms = this.getWidgetInstance(msId), list = ms.controller.getListWidget();

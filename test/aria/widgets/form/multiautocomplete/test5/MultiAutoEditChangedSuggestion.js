@@ -19,10 +19,13 @@ Aria.classDefinition({
     $prototype : {
 
         runTemplateTest : function () {
-            this.clickAndType(["a", "[down][down][enter]", "air", "[down][down][enter]"], {
+            this.clickAndType(["a", this.dropdownOpenCondition,
+                               "[down][down][enter]", this.dropdownCloseCondition,
+                               "air", this.dropdownOpenCondition,
+                               "[down][down][enter]", this.dropdownCloseCondition], {
                 fn : this._editValues,
                 scope : this
-            }, 500);
+            }, 1);
         },
 
         _editValues : function () {
@@ -59,9 +62,7 @@ Aria.classDefinition({
                 cb : {
                     fn : function() {
                         this.waitFor({
-                            condition : function () {
-                                return this.getWidgetDropDownPopup("MultiAutoId");
-                            },
+                            condition : this.dropdownOpenCondition,
                             callback : {
                                 fn : this._afterLastDropdownOpen,
                                 scope : this
@@ -81,9 +82,7 @@ Aria.classDefinition({
                 cb : {
                     fn : function() {
                         this.waitFor({
-                            condition : function () {
-                                return !this.getWidgetDropDownPopup("MultiAutoId");
-                            },
+                            condition :  this.dropdownCloseCondition,
                             callback : {
                                 fn : this._afterChange,
                                 scope : this
