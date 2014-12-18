@@ -31,7 +31,7 @@ Aria.classDefinition({
         runTemplateTest : function () {
             this._datePickerField = this.getInputField("datePicker");
             this.synEvent.click(this._datePickerField, {
-                fn : function() {this.waitforWidgetFocus("datePicker", this._afterClicking)},
+                fn : function() {this.waitForWidgetFocus("datePicker", this._afterClicking)},
                 scope : this
             });
 
