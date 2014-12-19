@@ -232,6 +232,7 @@ module.exports = Aria.classDefinition({
                 if (shift) {
                     seq.push(["keyRelease", this._robot.robot.KEYS.VK_SHIFT]);
                 }
+                seq.push(["pause", 100]);
             }
             this.execute(seq, cb);
         },
