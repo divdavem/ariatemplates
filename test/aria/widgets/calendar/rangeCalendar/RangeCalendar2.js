@@ -182,7 +182,10 @@ module.exports = Aria.classDefinition({
                 });
             }
 
-            step0();
+            this.synEvent.execute([["mouseMove", {
+                        x : 0,
+                        y : 0
+                    }]], step0);
         }
     }
 });
