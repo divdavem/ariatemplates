@@ -275,6 +275,9 @@ module.exports = Aria.classDefinition({
          */
         waitFor : function (args) {
             var delay = args.delay || 250;
+            var timeout = args.timeout || 10000;
+            var timeoutTime = new Date().getTime() + timeout;
+
             var condition = args.condition;
 
             var waitForStatus = this._waitForStatus;
@@ -288,6 +291,8 @@ module.exports = Aria.classDefinition({
                     waitForStatus.ongoing = false;
 
                     this.$callback(args.callback);
+                } else if (new Date().getTime() > timeoutTime) {
+                    this.setTestTimeout(0, this._currentTestName);
                 } else {
                     ariaCoreTimer.addCallback({
                         fn : timeoutFn,
