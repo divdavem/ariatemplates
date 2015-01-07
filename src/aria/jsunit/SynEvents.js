@@ -154,7 +154,7 @@ module.exports = Aria.classDefinition({
                     setTimeout(check, 100);
                 }
             };
-            setTimeout(check, 1);
+            setTimeout(check, 100);
         },
 
         pause : function (duration, cb) {
@@ -232,7 +232,6 @@ module.exports = Aria.classDefinition({
                 if (shift) {
                     seq.push(["keyRelease", this._robot.robot.KEYS.VK_SHIFT]);
                 }
-                seq.push(["pause", 100]);
             }
             this.execute(seq, cb);
         },
