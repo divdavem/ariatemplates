@@ -4,7 +4,7 @@ node_js:
 before_install:
 # Installing the latest Chrome version:
   - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-  - sudo sh -c 'echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+  - sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
   - sudo apt-get update && sudo apt-get install google-chrome-stable
 # Changing the /etc/hosts file is needed for the selenium Firefox driver to work correctly
 # (see https://code.google.com/p/selenium/issues/detail?id=3280)
