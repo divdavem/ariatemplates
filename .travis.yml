@@ -2,6 +2,8 @@ language: node_js
 node_js:
   - 0.10
 before_install:
+# Updating Chromium so that it is compatible with ChromeDriver
+  - sudo apt-get update && sudo apt-get install chromium-browser
 # Changing the /etc/hosts file is needed for the selenium Firefox driver to work correctly
 # (see https://code.google.com/p/selenium/issues/detail?id=3280)
   - (echo "127.0.0.1 localhost" && cat /etc/hosts) > /tmp/hosts && sudo mv /tmp/hosts /etc/hosts
