@@ -18,9 +18,15 @@ var Promise = require('noder-js/promise.js');
 
 module.exports = function (classGenerator) {
     return function (content, fileName) {
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
             classGenerator.parseTemplate(content, false, function (res) {
-                resolve(res.classDef);
+                if (res.classDef) {
+                    resolve(res.classDef);
+                } else {
+                    reject(new Error("Template '"
+                            + fileName
+                            + "' could not be compiled to javascript. Please check the previous errors in the console for more details."));
+                }
             }, {
                 "file_classpath" : fileName
             });
