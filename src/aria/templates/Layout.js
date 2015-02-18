@@ -33,6 +33,28 @@ var ariaCoreJsonValidator = require("../core/JsonValidator");
     };
     var __scrollBarsWidth;
     var __autoresizes = null;
+    var ignoreResizeAfterFocusDelay = 0;
+    var lastFocusEvent = 0;
+
+    var __onFocus = function (event) {
+        lastFocusEvent = new Date().getTime();
+    };
+
+    var addFocusEvent = function () {
+        if (ignoreResizeAfterFocusDelay > 0) {
+            eventUtils.addListener(Aria.$window, "focusin", {
+                fn : __onFocus
+            });
+        }
+    };
+
+    var removeFocusEvent = function () {
+        if (ignoreResizeAfterFocusDelay > 0) {
+            eventUtils.removeListener(Aria.$window, "focusin", {
+                fn : __onFocus
+            });
+        }
+    };
 
     /**
      * If not done already, notifies AriaWindow that we are using Aria.$window and attaches the resize listener to it.
@@ -44,6 +66,7 @@ var ariaCoreJsonValidator = require("../core/JsonValidator");
             eventUtils.addListener(Aria.$window, "resize", {
                 fn : __onResize
             });
+            addFocusEvent();
             // PTR 08127833 - it updates the viewport sizes the first time a DOM element is registered as autoresizable
             __applyNewSize();
         }
@@ -62,6 +85,7 @@ var ariaCoreJsonValidator = require("../core/JsonValidator");
             eventUtils.removeListener(Aria.$window, "resize", {
                 fn : __onResize
             });
+            removeFocusEvent();
             ariaUtilsAriaWindow.detachWindow();
             __autoresizes = null;
         }
@@ -101,6 +125,12 @@ var ariaCoreJsonValidator = require("../core/JsonValidator");
     };
 
     var __onResize = function () {
+        if (ignoreResizeAfterFocusDelay > 0
+                && Math.abs(new Date().getTime() - lastFocusEvent) < ignoreResizeAfterFocusDelay) {
+            // ignore resize events which are caused by the virtual keyboard, when it appears
+            // after focusing a field
+            return;
+        }
         if (__cancelID) {
             timer.cancelCallback(__cancelID);
             __cancelID = null;
@@ -200,6 +230,26 @@ var ariaCoreJsonValidator = require("../core/JsonValidator");
                 height : null
             },
             // viewportSize: {width: ..., height: ...},
+
+            ignoreResizeAfterFocus : function (newDelay) {
+                var previousValue = ignoreResizeAfterFocusDelay;
+                if (newDelay != null && newDelay !== previousValue) {
+                    ignoreResizeAfterFocusDelay = newDelay;
+                    if (__autoresizes) {
+                        var enabledBefore = previousValue > 0;
+                        var enabledNow = newDelay > 0;
+                        if (enabledBefore !== enabledNow) {
+                            // newly enabled or disabled
+                            if (enabledNow) {
+                                addFocusEvent();
+                            } else {
+                                removeFocusEvent();
+                            }
+                        }
+                    }
+                }
+                return previousValue;
+            },
 
             $on : function () {
                 this.$JsObject.$on.apply(this, arguments);
