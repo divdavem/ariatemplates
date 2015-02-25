@@ -16,12 +16,26 @@
 // Creates a preprocessor for a specific class generator
 var Promise = require('noder-js/promise.js');
 
+var checkLogicalPath = function (found, expected) {
+    try {
+        return found === expected || require.resolve(found) === expected;
+    } catch (e) {
+        return false;
+    }
+};
+
 module.exports = function (classGenerator) {
     return function (content, fileName) {
         return new Promise(function (resolve, reject) {
             classGenerator.parseTemplate(content, false, function (res) {
                 if (res.classDef) {
-                    resolve(res.classDef);
+                    if (!checkLogicalPath(res.logicalPath, fileName)) {
+                        reject(new Error("Module '"
+                                + fileName
+                                + "' does not contain the expected Aria Templates class. Please check the classpath inside the file."));
+                    } else {
+                        resolve(res.classDef);
+                    }
                 } else {
                     var errorDetails;
                     var log = aria.core.Log; // log may not be included in the bootstrap
