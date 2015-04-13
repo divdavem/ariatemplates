@@ -16,6 +16,10 @@ before_install:
   - npm --version
   - npm config set spin false
   - phantomjs --version
+# Get an experimental version of noder-js:
+  - mkdir node_modules && git clone https://github.com/divdavem/noder-js.git -b exposingProperties node_modules/noder-js
+  - npm install -g grunt-cli
+  - (cd node_modules/noder-js && npm install)
 script:
   - npm run ci
 notifications:
