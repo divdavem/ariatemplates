@@ -296,6 +296,13 @@ module.exports = Aria.classDefinition({
             return null;
         },
 
+        getFrameworkHref: function () {
+            if (this.frameworkHref == null) {
+                this.frameworkHref = this._findScriptPattern(this.frameworkHrefPattern);
+            }
+            return this.frameworkHref;
+        },
+
         /**
          * Set the following property if they are not defined already: bootRootFolderPath, frameworkHref, frameworkJS
          * @param {aria.core.CfgBeans:Callback} cb callback called when the properties are set.
@@ -309,12 +316,10 @@ module.exports = Aria.classDefinition({
                 this.$callback(cb);
                 return;
             }
+            this.getFrameworkHref();
             if (this.frameworkHref == null) {
-                this.frameworkHref = this._findScriptPattern(this.frameworkHrefPattern);
-                if (this.frameworkHref == null) {
-                    this.$callback(cb, true);
-                    return;
-                }
+                this.$callback(cb, true);
+                return;
             }
             this.$onOnce({
                 bootstrapLoaded : cb

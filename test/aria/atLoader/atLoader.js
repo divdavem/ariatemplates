@@ -19,7 +19,7 @@
             res = 'test PASSED';
             className = 'success';
         }
-        document.write('<h2 class=\"' + className + '\">' + res + '</h2>')
+        document.write('<h2 id="result" class="' + className + '">' + res + '</h2>')
     }
 
     function testInjection() {
