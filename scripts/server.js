@@ -78,13 +78,20 @@ app.get("/playground/dev", function (req, res) {
     });
 });
 // Rename bootstrap prefixing with ariatemplates- this fixes runIsolated in dev mode
-app.get("/aria-templates/dev/aria/ariatemplates-bootstrap.js", function (req, res) {
+// Also accepts any version number and redirects to the bootstrap file:
+app.get(/^\/aria-templates\/dev\/aria\/aria-?templates-([-\.a-zA-Z0-9]+)\.js(\?|$)/, function (req, res) {
     res.sendfile(path.normalize(__dirname + "/../src/aria/bootstrap.js"));
 });
 // Static CSS files for views and tools
 app.use("/css", express.static(__dirname + "/assets/css"));
 // Non minified version points to src folder
+app.use("/aria-templates/dev", express.static(__dirname + "/../../amariatemplates/at/src/main/static"));
 app.use("/aria-templates/dev", express.static(__dirname + "/../src"));
+
+// Accepts any version number and redirects to the current version:
+app.get(/^\/aria-templates\/aria\/aria-?templates-([-\.a-zA-Z0-9]+)\.js(\?|$)/, function (req, res) {
+    res.sendfile(path.normalize(__dirname + "/../build/target/production/aria/ariatemplates-" + pkg.version + ".js"));
+});
 // Minified version points to standard build (npm install)
 app.use("/aria-templates", express.static(__dirname + "/../build/target/production"));
 // Test classpath redirects to test folder
