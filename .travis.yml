@@ -2,6 +2,14 @@ language: node_js
 node_js:
   - 0.10
 sudo: false
+env:
+  global:
+    - SAUCE_USERNAME=ariatemplates
+    - SAUCE_ACCESS_KEY=620e638e-90d2-48e1-b66c-f9505dcb888b
+  matrix:
+    - USE_SELENIUM=false BROWSER=phantomjs
+    - USE_SELENIUM=false BROWSER=firefox
+    - USE_SELENIUM=true BROWSER="internet explorer" BROWSER_PLATFORM="Windows 7" BROWSER_VERSION="11.0"
 before_install:
 # Settings needed for graphic output in Firefox
   - export DISPLAY=:99.0
@@ -14,6 +22,11 @@ before_install:
   - npm --version
   - npm config set spin false
   - phantomjs --version
+before_script:
+  - ( cd node_modules/selenium-java-robot && npm install )
+  - chmod 777 ./travis_sauce_connect.sh
+  - ./travis_sauce_connect.sh
+  - export SELENIUM_SERVER="http://$SAUCE_USERNAME:$SAUCE_ACCESS_KEY@ondemand.saucelabs.com:80/wd/hub"
 script:
   - npm run ci
 notifications:
