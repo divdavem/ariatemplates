@@ -201,6 +201,7 @@ module.exports = Aria.classDefinition({
             out.registerBehavior(list);
             list.writeMarkup(out);
             this.controller.setListWidget(list);
+            this._domElt.setAttribute("aria-owns", list.getDom().id);
         },
 
         /**
@@ -209,6 +210,7 @@ module.exports = Aria.classDefinition({
          */
         _afterDropdownClose : function () {
             this.controller.setListWidget(null);
+            this._domElt.removeAttribute("aria-owns");
             this.$DropDownTrait._afterDropdownClose.call(this);
         },
 

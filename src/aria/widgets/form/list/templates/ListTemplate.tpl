@@ -41,7 +41,7 @@
 
     {macro renderItem(item, itemIdx)}
         {var a = _getClassForItem(item)/}
-        <a href="javascript:void(0)" class="${a}" data-itemIdx="${itemIdx}" onclick="return false;">
+        <a href="javascript:void(0)" class="${a}" data-itemIdx="${itemIdx}" onclick="return false;" role="option">
             {if ! item.label}
                 &nbsp;
             {else/}

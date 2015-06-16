@@ -180,6 +180,13 @@ module.exports = Aria.classDefinition({
         _skinnableClass : "TextInput",
 
         /**
+         * aria-autocomplete attribute value which is set on the input element.
+         * If it is empty, the aria-autocomplete attribute is not set.
+         * @type String
+         */
+        _ariaAutocomplete : "",
+
+        /**
          * Prototype init method called at prototype creation time Allows to store class-level objects that are shared
          * by all instances
          * @param {Object} p the prototype object being built
@@ -332,13 +339,18 @@ module.exports = Aria.classDefinition({
                 spellCheck = ' spellcheck="' + (cfg.spellCheck ? "true" : "false") + '"';
             }
 
+            var ariaAutocomplete = this._ariaAutocomplete;
+            if (ariaAutocomplete) {
+                ariaAutocomplete = ' aria-autocomplete="' + stringUtils.escapeHTMLAttr(ariaAutocomplete) + '"';
+            }
+
             if (this._isTextarea) {
                 out.write(['<textarea', Aria.testMode ? ' id="' + this._domId + '_textarea"' : '',
                         cfg.disabled ? ' disabled="disabled"' : cfg.readOnly ? ' readonly="readonly"' : '', ' type="',
                         type, '" style="', inlineStyle.join(''), 'color:', color,
                         ';overflow:auto;resize:none;height: ' + this._frame.innerHeight + 'px; width:', inputWidth,
                         'px;"', 'value=""', (cfg.maxlength > -1 ? 'maxlength="' + cfg.maxlength + '" ' : ' '),
-                        (cfg.tabIndex != null ? 'tabindex="' + this._calculateTabIndex() + '" ' : ' '), spellCheck,
+                        (cfg.tabIndex != null ? 'tabindex="' + this._calculateTabIndex() + '" ' : ' '), spellCheck, ariaAutocomplete,
                         '>', stringUtils.escapeHTML(((this._helpTextSet) ? cfg.helptext : text) || ""),
                         '</textarea>'
 
@@ -349,7 +361,7 @@ module.exports = Aria.classDefinition({
                         type, '" style="', inlineStyle.join(''), 'color:', color, ';width:', inputWidth, 'px;"',
                         'value="', stringUtils.encodeForQuotedHTMLAttribute((this._helpTextSet) ? cfg.helptext : text),
                         '" ', (cfg.maxlength > -1 ? 'maxlength="' + cfg.maxlength + '" ' : ' '),
-                        (cfg.tabIndex != null ? 'tabindex="' + this._calculateTabIndex() + '" ' : ' '), spellCheck,
+                        (cfg.tabIndex != null ? 'tabindex="' + this._calculateTabIndex() + '" ' : ' '), spellCheck, ariaAutocomplete,
                         ' _ariaInput="1"/>'
                 // the _ariaInput attribute is present so that pressing
                 // ENTER on this widget raises the onSubmit event of

@@ -106,6 +106,19 @@ module.exports = Aria.classDefinition({
         _skinnableClass : "AutoComplete",
 
         /**
+         * Role attribute value which is set on the root DOM element of the widget.
+         * @override
+         */
+        _role : "combobox",
+
+        /**
+         * aria-autocomplete attribute value which is set on the input element.
+         * If it is empty, the aria-autocomplete attribute is not set.
+         * @override
+         */
+        _ariaAutocomplete : "list",
+
+        /**
          * Prototype init method called at prototype creation time Allows to store class-level objects that are shared
          * by all instances
          * @param {Object} p the prototype object being built

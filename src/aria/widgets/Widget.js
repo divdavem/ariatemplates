@@ -188,6 +188,13 @@ module.exports = Aria.classDefinition({
     },
     $prototype : {
         /**
+         * Role attribute value which is set on the root DOM element of the widget.
+         * If it is empty, the role attribute is not set.
+         * @type String
+         */
+        _role : "",
+
+        /**
          * Classpath of the CfgBeans to use when validating the configuration of this widget.
          * @type String
          */
@@ -365,6 +372,10 @@ module.exports = Aria.classDefinition({
             out.write(delegateManager.getMarkup(this._delegateId) + " ");
 
             out.write('class="' + cssClasses + '" ');
+
+            if (this._role) {
+                out.write('role="' + ariaUtilsString.escapeHTMLAttr(this._role) + '" ');
+            }
 
             out.write('style="');
             if (this._spanStyle != null) {

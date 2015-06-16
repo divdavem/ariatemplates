@@ -81,6 +81,12 @@ module.exports = Aria.classDefinition({
         _skinnableClass : "List",
 
         /**
+         * Role attribute value which is set on the root DOM element of the widget.
+         * @override
+         */
+        _role : "listbox",
+
+        /**
          * Return true to cancel default action.
          * @param {Number} charCode Character code
          * @param {Number} keyCode Code of the button pressed
