@@ -21,7 +21,7 @@ var ariaWidgetsFormListListStyle = require("./list/ListStyle.tpl.css");
 var ariaWidgetsContainerDivStyle = require("../container/DivStyle.tpl.css");
 var ariaWidgetsFormDropDownTextInput = require("./DropDownTextInput");
 var ariaCoreBrowser = require("../../core/Browser");
-
+var ariaWidgetsEnvironmentWidgetSettings = require("../environment/WidgetSettings");
 
 /**
  * AutoComplete widget
@@ -76,6 +76,15 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         this._freePopupWidth = false;
+
+        /**
+         * Whether accessibility is enabled.
+         * @type Boolean
+         */
+        this._accessibility = ariaWidgetsEnvironmentWidgetSettings.getWidgetSettings().accessibility;
+        if (this._accessibility) {
+            this._extraInputAttributes += ' aria-expanded="false" role="combobox" aria-autocomplete="list"';
+        }
     },
     $destructor : function () {
         // The dropdown might still be open when we destroy the widget, destroy it now
@@ -144,6 +153,12 @@ module.exports = Aria.classDefinition({
                 options.minWidth = inputMarkupWidth + this._skinObj.offsetRight;
             }
             options.maxHeight = this._cfg.popupMaxHeight || 210;
+            if (this._accessibility) {
+                options.onchange = {
+                    scope: this,
+                    fn: this._updateAriaActiveDescendant
+                };
+            }
             this.$DropDownListTrait._renderDropdownContent.call(this, out, options);
         },
 
@@ -159,7 +174,6 @@ module.exports = Aria.classDefinition({
                 this._keepFocus = false;
             }
             this.$DropDownTextInput._reactToControllerReport.call(this, report, arg);
-
         },
 
         /**
@@ -179,6 +193,40 @@ module.exports = Aria.classDefinition({
                     this._reactToControllerReport(report);
                 }
             }
+        },
+
+        _updateAriaActiveDescendant : function() {
+            if (!this._accessibility) {
+                return;
+            }
+            var field = this.getTextInputField();
+            var listWidget = this.controller.getListWidget();
+            var selectedIdx = this.controller.getDataModel().selectedIdx;
+            if (selectedIdx > -1) {
+                field.setAttribute("aria-activedescendant", listWidget.getOptionDomId(selectedIdx));
+            } else {
+                field.removeAttribute("aria-activedescendant");
+            }
+        },
+
+        _afterDropdownOpen : function () {
+            this.$DropDownTextInput._afterDropdownOpen.apply(this, arguments);
+            if (this._accessibility) {
+                var field = this.getTextInputField();
+                field.setAttribute("aria-owns", this.controller.getListWidget().getListDomId());
+                field.setAttribute("aria-expanded", "true");
+                this._updateAriaActiveDescendant();
+            }
+        },
+
+        _afterDropdownClose : function () {
+            if (this._accessibility) {
+                var field = this.getTextInputField();
+                field.removeAttribute("aria-activedescendant");
+                field.setAttribute("aria-expanded", "false");
+                field.removeAttribute("aria-owns");
+            }
+            this.$DropDownListTrait._afterDropdownClose.apply(this, arguments);
         },
 
         /**
