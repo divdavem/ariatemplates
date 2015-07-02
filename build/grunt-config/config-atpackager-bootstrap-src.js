@@ -17,6 +17,7 @@
  * Aria Templates bootstrap build file for files generated in the source folder directly.
  */
 module.exports = function (grunt) {
+    var path = require('path');
     var packagingSettings = require('./config-packaging')(grunt);
 
     var getNoderPackage = function (packageFile, mainFile, environment) {
@@ -81,8 +82,17 @@ module.exports = function (grunt) {
             sourceDirectories : ['src'],
             sourceFiles : [],
             outputDirectory : 'src',
-            visitors : [uaparserVisitor,
-                        'CopyUnpackaged', {
+            visitors : [
+                    {
+                        type : 'ImportSourceFiles',
+                        cfg : {
+                            sourceDirectory : path.dirname(require.resolve("syn/dist/cjs/syn")),
+                            sourceFiles : ["**/*.js", "!syn.js"],
+                            targetBaseLogicalPath : "aria/utils/syn"
+                        }
+                    },
+                    uaparserVisitor,
+                    'CopyUnpackaged', {
                         type : 'NoderPlugins',
                         cfg : {
                             targetBaseLogicalPath : "aria",
