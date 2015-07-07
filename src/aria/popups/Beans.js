@@ -120,6 +120,11 @@ module.exports = Aria.beanDefinitions({
                     $description : "[Optional] The dialog the popup belongs to",
                     $default : null
                 },
+                "ownerDomElement" : {
+                    $type : "json:ObjectRef",
+                    $description : "[Optional] The id of the DOM element which should contain the popup. If null, the dialog will be in the body.",
+                    $default : null
+                },
                 "preferredWidth" : {
                     $type : "json:Integer",
                     $description : "Width of the popup in px - if negative, the width is computed dynamically depending on the content.",

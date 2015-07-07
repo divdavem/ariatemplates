@@ -101,6 +101,12 @@ module.exports = Aria.classDefinition({
         this.domElement = null;
 
         /**
+         * Dom element which contains the popup
+         * @type HTMLElement
+         */
+        this.ownerDomElement = null;
+
+        /**
          * Flag indicating if the popup is displayed or not
          * @type Boolean
          */
@@ -252,10 +258,14 @@ module.exports = Aria.classDefinition({
                 beanName : "aria.popups.Beans.PopupConf"
             });
 
+
             if (this.modalMaskDomElement) {
                 ariaUtilsDom.removeElement(this.modalMaskDomElement);
                 this.modalMaskDomElement = null;
             }
+
+            this.ownerDomElement = conf.ownerDomElement || this._document.body;
+
             if (conf.modal) {
                 this.modalMaskDomElement = this._createMaskDomElement(conf.maskCssClass);
             }
@@ -321,7 +331,7 @@ module.exports = Aria.classDefinition({
                     + " style='position:absolute;top:-15000px;left:-15000px;visibility:hidden;display:block;'></div>";
             var domElement = div.firstChild;
             document.body.removeChild(div);
-            document.body.appendChild(domElement);
+            this.ownerDomElement.appendChild(domElement);
             return domElement;
         },
 
@@ -336,7 +346,7 @@ module.exports = Aria.classDefinition({
             var div = document.createElement("div");
             div.className = className || "xModalMask-default";
             div.style.cssText = "position:absolute;top:-15000px;left:-15000px;visibility:hidden;display:block;";
-            return document.body.appendChild(div);
+            return this.ownerDomElement.appendChild(div);
         },
 
         /**
@@ -458,6 +468,8 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _getPosition : function (size) {
+            var ownerDomElement = this.ownerDomElement;
+            var ownerIsBody = (ownerDomElement == this._document.body);
             var position, isInViewSet;
             if (this.conf.maximized) {
                 var offset = this.conf.offset;
@@ -693,25 +705,31 @@ module.exports = Aria.classDefinition({
             // Insure that the top left corner is visible
             if (this.modalMaskDomElement) {
 
-                if (this._rootElementOverflow == -1) {
-                    this._rootElementOverflow = this._rootElement.style.overflow;
+                var ownerDomElement = this.ownerDomElement;
+                var ownerIsBody = (ownerDomElement == this._document.body);
+                var rootElement = ownerIsBody ? this._rootElement : ownerDomElement;
+
+                if (ownerIsBody && this._rootElementOverflow == -1) {
+                    this._rootElementOverflow = rootElement.style.overflow;
                     if (ariaCoreBrowser.isFirefox) {
                         var docScroll = ariaUtilsDom._getDocumentScroll();
-                        this._rootElement.style.overflow = "hidden";
-                        this._rootElement.scrollTop = docScroll.scrollTop;
-                        this._rootElement.scrollLeft = docScroll.scrollLeft;
+                        rootElement.style.overflow = "hidden";
+                        rootElement.scrollTop = docScroll.scrollTop;
+                        rootElement.scrollLeft = docScroll.scrollLeft;
                     } else {
-                        this._rootElement.style.overflow = "hidden";
+                        rootElement.style.overflow = "hidden";
                     }
                 }
-                var viewport = ariaUtilsDom._getViewportSize();
 
-                var width = this._rootElement.scrollWidth;
-                var height = this._rootElement.scrollHeight;
+                var width = rootElement.scrollWidth;
+                var height = rootElement.scrollHeight;
 
-                // ensure that all viewport is used
-                height = Math.max(viewport.height, height);
-                width = Math.max(viewport.width, width);
+                if (ownerIsBody) {
+                    var viewport = ariaUtilsDom._getViewportSize();
+                    // ensure that all viewport is used
+                    height = Math.max(viewport.height, height);
+                    width = Math.max(viewport.width, width);
+                }
                 // Compute the style after scrollbars are removed from the
                 // document. Thus the dialog can be properly
                 // centered
@@ -756,7 +774,7 @@ module.exports = Aria.classDefinition({
 
             if (ariaCoreBrowser.isIE7 && !this.isOpen) {
                 // Without the following line, the autocomplete does not initially display its content on IE7:
-                this._document.body.appendChild(this.domElement);
+                this.ownerDomElement.appendChild(this.domElement);
             }
 
         },
