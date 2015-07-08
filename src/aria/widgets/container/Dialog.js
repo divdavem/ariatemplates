@@ -131,6 +131,14 @@ module.exports = Aria.classDefinition({
          * @type Integer
          */
         this._cfg.heightMaximized = null;
+
+        /**
+         */
+        this._container = null;
+
+        /**
+         */
+        this._containerIsBody = null;
     },
     $destructor : function () {
         this.close();
@@ -264,7 +272,6 @@ module.exports = Aria.classDefinition({
         _writerCallback : function (out) {
             var cfg = this._cfg;
             var viewport = ariaUtilsDom._getViewportSize();
-
             // constrain dialog to viewport
             var math = ariaUtilsMath;
             var maxHeight, maxWidth;
@@ -520,6 +527,18 @@ module.exports = Aria.classDefinition({
          */
         open : function () {
             var cfg = this._cfg;
+
+            var container = cfg.container;
+            if (!container && cfg.containerId) {
+                container = ariaUtilsDom.getElementById(cfg.containerId);
+                if (!container) {
+                    this.$logError("Id '%1' not found in the DOM",[cfg.containerId]);
+                    return;
+                }
+            }
+            this._container = container || Aria.$window.document.body;
+            this._containerIsBody = (this._container == Aria.$window.document.body);
+
             var refreshParams = {
                 section : "__dialog_" + this._domId,
                 writerCallback : {
@@ -527,7 +546,6 @@ module.exports = Aria.classDefinition({
                     scope : this
                 }
             };
-
             var section = this._context.getRefreshedSection(refreshParams);
             var popup = new ariaPopupsPopup();
             this._popup = popup;
@@ -551,6 +569,7 @@ module.exports = Aria.classDefinition({
                     left : cfg.xpos,
                     top : cfg.ypos
                 },
+                container: container,
                 center : cfg.center,
                 maximized : cfg.maximized,
                 offset : cfg.maximized ? this._shadows : this._shadowsZero,
@@ -672,6 +691,8 @@ module.exports = Aria.classDefinition({
                 this._domElt = null;
                 this._titleBarDomElt = null;
                 this._titleDomElt = null;
+                this._container = null;
+                this._containerIsBody = null;
                 if (this._closeDelegateId) {
                     ariaUtilsDelegate.remove(this._closeDelegateId);
                 }
@@ -795,8 +816,14 @@ module.exports = Aria.classDefinition({
          * Compute the actual position of the popup and update the data model with the correct values
          */
         _calculatePosition : function () {
-            var position = ariaUtilsDom.calculatePosition(this._domElt);
             if (!this._cfg.maximized) { // in maximized mode, positioning is handled by the Popup itself
+                var position = ariaUtilsDom.calculatePosition(this._domElt);
+                if (!this._containerIsBody) {
+                    var container = this._container;
+                    var ownerPosition = ariaUtilsDom.calculatePosition(container);
+                    position.left -= ownerPosition.left + container.clientLeft;
+                    position.top -= ownerPosition.top + container.clientTop;
+                }
                 this.setProperty("xpos", position.left);
                 this.setProperty("ypos", position.top);
             }
@@ -948,7 +975,7 @@ module.exports = Aria.classDefinition({
                 handle : this._titleBarDomElt,
                 cursor : "move",
                 proxy : this._cfg.movableProxy,
-                constrainTo : ariaUtilsDom.VIEWPORT,
+                constrainTo : this._containerIsBody ? ariaUtilsDom.VIEWPORT : this._container,
                 dragOverIFrame : true
             });
             this._draggable.$on({
