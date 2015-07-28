@@ -201,6 +201,13 @@ var ariaCoreJsonValidator = require("../core/JsonValidator");
             },
             // viewportSize: {width: ..., height: ...},
 
+            refreshLayout : function () {
+                layout.$raiseEvent({
+                    name : "viewportResized",
+                    viewportNewSize : layout.viewportSize
+                });
+            },
+
             $on : function () {
                 this.$JsObject.$on.apply(this, arguments);
                 __checkListeners();
