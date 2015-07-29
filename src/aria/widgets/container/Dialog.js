@@ -160,8 +160,8 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _onViewportResized : function (event) {
-            var viewport = this._popupContainer.getClientSize();
-            if (viewport.width <= 0 || viewport.height <= 0) {
+            var containerSize = this._popupContainer.getClientSize();
+            if (containerSize.width <= 0 || containerSize.height <= 0) {
                 // do nothing if the container is not visible
                 return;
             }
@@ -174,13 +174,13 @@ module.exports = Aria.classDefinition({
                 domElt.style.width = "";
                 domElt.style.height = "";
 
-                // constrain dialog to viewport
-                this._updateDivSize(viewport);
+                // constrain dialog to containerSize
+                this._updateDivSize(containerSize);
                 this._updateContainerSize();
             }
 
             if (maximized) {
-                this._setMaximizedHeightAndWidth(viewport);
+                this._setMaximizedHeightAndWidth(containerSize);
             }
         },
 
@@ -275,17 +275,17 @@ module.exports = Aria.classDefinition({
          */
         _writerCallback : function (out) {
             var cfg = this._cfg;
-            var viewport = this._popupContainer.getClientSize();
+            var containerSize = this._popupContainer.getClientSize();
 
-            // constrain dialog to viewport
+            // constrain dialog to containerSize
             var math = ariaUtilsMath;
             var maxHeight, maxWidth;
             if (this._cfg.maximized) {
-                maxHeight = viewport.height + this._shadows.top + this._shadows.bottom;
-                maxWidth = viewport.width + this._shadows.left + this._shadows.right;
+                maxHeight = containerSize.height + this._shadows.top + this._shadows.bottom;
+                maxWidth = containerSize.width + this._shadows.left + this._shadows.right;
             } else {
-                maxHeight = math.min(this._cfg.maxHeight, viewport.height);
-                maxWidth = math.min(this._cfg.maxWidth, viewport.width);
+                maxHeight = math.min(this._cfg.maxHeight, containerSize.height);
+                maxWidth = math.min(this._cfg.maxWidth, containerSize.width);
             }
             this._div = new ariaWidgetsContainerDiv({
                 sclass : this._skinObj.divsclass,
@@ -587,7 +587,7 @@ module.exports = Aria.classDefinition({
 
             // in case when bound "maximized" was toggled while Dialog was not visible
             if (this._cfg.maximized) {
-                this._setBodyOverflow("hidden");
+                this._setContainerOverflow("hidden");
                 this._setMaximizedHeightAndWidth();
             }
         },
@@ -684,7 +684,7 @@ module.exports = Aria.classDefinition({
                 this._destroyResizable();
 
                 if (cfg.maximized) {
-                    this._setBodyOverflow(this._optionsBeforeMaximize.bodyOverflow);
+                    this._setContainerOverflow(this._optionsBeforeMaximize.containerOverflow);
                 }
 
                 this._domElt = null;
@@ -729,20 +729,20 @@ module.exports = Aria.classDefinition({
         /**
          * Calculate proper maxWidth/maxHeight depending if in maximized mode or not, and call the Div in which the
          * current Dialog is embedded to update its size accordingly.
-         * @param {aria.utils.DomBeans:Size} viewport
+         * @param {aria.utils.DomBeans:Size} containerSize
          * @protected
          */
-        _updateDivSize : function (viewport) {
+        _updateDivSize : function (containerSize) {
             var cfg = this._cfg;
             var math = ariaUtilsMath;
 
             var maxHeight, maxWidth;
             if (this._cfg.maximized) {
-                maxHeight = viewport.height + this._shadows.top + this._shadows.bottom;
-                maxWidth = viewport.width + this._shadows.left + this._shadows.right;
+                maxHeight = containerSize.height + this._shadows.top + this._shadows.bottom;
+                maxWidth = containerSize.width + this._shadows.left + this._shadows.right;
             } else {
-                maxHeight = math.min(this._cfg.maxHeight, viewport.height);
-                maxWidth = math.min(this._cfg.maxWidth, viewport.width);
+                maxHeight = math.min(this._cfg.maxHeight, containerSize.height);
+                maxWidth = math.min(this._cfg.maxWidth, containerSize.width);
             }
 
             var titleBarDomElt = this._titleBarDomElt;
@@ -859,7 +859,7 @@ module.exports = Aria.classDefinition({
                 this._popup.conf.maximized = true;
                 this._popup.conf.offset = this._shadows;
 
-                this._setBodyOverflow("hidden");
+                this._setContainerOverflow("hidden");
                 this._setMaximizedHeightAndWidth();
 
                 this._destroyResizable();
@@ -880,7 +880,7 @@ module.exports = Aria.classDefinition({
             if (this._popup) {
                 this._popup.conf.maximized = false;
                 this._popup.conf.offset = this._shadowsZero;
-                this._setBodyOverflow(opts.bodyOverflow);
+                this._setContainerOverflow(opts.containerOverflow);
             }
 
             // using setProperty instead of changeProperty for performance reasons; hence need to explicitly invoke
@@ -925,32 +925,32 @@ module.exports = Aria.classDefinition({
                 maxHeight : cfg.maxHeight,
                 xpos : cfg.xpos,
                 ypos : cfg.ypos,
-                bodyOverflow : this._popupContainer ? this._popupContainer.getContainerOverflow() : ""
+                containerOverflow : this._popupContainer ? this._popupContainer.getContainerOverflow() : ""
             };
         },
 
         /**
-         * Set overflow on the body element, refresh the viewport and return the new dimensions of the viewport.
+         * Set overflow on the container element and calls _onViewportResized.
          * @param {String} newValue Any value accepted by CSS "overflow" property
          */
-        _setBodyOverflow : function (newValue) {
+        _setContainerOverflow : function (newValue) {
             this._popupContainer.changeContainerOverflow(newValue);
             // need to explicitly raise viewportResized so that maxwidth/maxheight constraints are recalculated
             this._onViewportResized();
         },
 
         /**
-         * Special function to resize the widget in the maximized mode, to fill the whole viewport and include shadows
-         * (thus resize to more than the real size of the viewport; the shadows will be off the viewport and therefore
+         * Special function to resize the widget in the maximized mode, to fill the whole container and include shadows
+         * (thus resize to more than the real size of the container; the shadows will be off the container and therefore
          * invisible)
-         * @param {aria.utils.DomBeans:Size} viewportSize
+         * @param {aria.utils.DomBeans:Size} containerSize
          */
-        _setMaximizedHeightAndWidth : function (viewportSize) {
-            if (!viewportSize) {
-                viewportSize = this._popupContainer.getClientSize();
+        _setMaximizedHeightAndWidth : function (containerSize) {
+            if (!containerSize) {
+                containerSize = this._popupContainer.getClientSize();
             }
-            var newHeight = viewportSize.height + this._shadows.top + this._shadows.bottom;
-            var newWidth = viewportSize.width + this._shadows.left + this._shadows.right;
+            var newHeight = containerSize.height + this._shadows.top + this._shadows.bottom;
+            var newWidth = containerSize.width + this._shadows.left + this._shadows.right;
 
             this.setProperty("heightMaximized", newHeight);
             this.setProperty("widthMaximized", newWidth);

@@ -43,6 +43,12 @@ module.exports = Aria.classDefinition({
          * Returns the previous value.
          */
         changeContainerOverflow : function (newValue) {
+            // PTR 04893174 was rolled back for release 1.1-13 because it introduces a regression on Airrail.
+            // PTR 04893174: do not set scrollElement = document.body on Firefox, as it resets all scrolling
+            // position when changing the overflow style
+            // PTR 05210073: the changes reverted for PTR 04893174 were put back in place and the code changes
+            // in order to fix the regression were implemented
+
             var scrollElement = DomUtils.getDocumentScrollElement();
             var res = scrollElement.style.overflow;
             if (Browser.isFirefox) {

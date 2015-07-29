@@ -157,18 +157,11 @@ module.exports = Aria.classDefinition({
         this._ignoreClicksOn = null;
 
         /**
-         * Stores the old "overflow" style of the root element (overflow hidden is used for the modal dialog)
+         * Stores the old "overflow" style of the container element (overflow hidden is used for the modal dialog)
          * @protected
          * @type String
          */
-        this._rootElementOverflow = -1;
-
-        /**
-         * Root element on which the style changes should be done
-         * @protected
-         * @type HTMLElement
-         */
-        this._rootElement = ariaUtilsDom.getDocumentScrollElement();
+        this._containerOverflow = -1;
 
         /**
          * Used to display the popup
@@ -181,16 +174,6 @@ module.exports = Aria.classDefinition({
          * @type aria.utils.css.Animations
          */
         this._maskAnimator = null;
-
-        // PTR 04893174 was rolled back for release 1.1-13 because it introduces
-        // a regression on Airrail.
-        // TO BE FIXED LATER
-        // PTR 04893174: do not set this._rootElement = document.body on
-        // Firefox, as it resets all scrolling
-        // position when changing the overflow style
-        // PTR 05210073: the changes reverted for PTR 04893174 were put back in
-        // place and the code changes in order to
-        // fix the regression were implemented
 
         /**
          * Document where the popup is displayed.
@@ -468,14 +451,14 @@ module.exports = Aria.classDefinition({
             var position, isInViewSet;
             if (this.conf.maximized) {
                 var offset = this.conf.offset;
-                var documentScroll = this.popupContainer.getContainerScroll();
+                var containerScroll = this.popupContainer.getContainerScroll();
                 position = {
-                    top : documentScroll.scrollTop - offset.top,
-                    left : documentScroll.scrollLeft - offset.left
+                    top : containerScroll.scrollTop - offset.top,
+                    left : containerScroll.scrollLeft - offset.left
                 };
             } else if (this.conf.center) {
                 // apply the offset (both left and right, and also top and bottom)
-                // before centering the whole thing in the viewport
+                // before centering the whole thing in the container
                 var offset = this.conf.offset;
                 var newSize = {
                     width : size.width + offset.left + offset.right,
@@ -489,7 +472,7 @@ module.exports = Aria.classDefinition({
                     preferredPosition = this.preferredPositions[i];
                     // Calculate position for a given anchor
                     position = this._getPositionForAnchor(preferredPosition, size);
-                    // If this position+size is out of the viewport, try the
+                    // If this position+size is out of the container, try the
                     // next anchor available
                     isInViewSet = this.popupContainer.isInside(position, size);
                     i++;
@@ -499,7 +482,7 @@ module.exports = Aria.classDefinition({
                     name : "onPositioned"
                 };
 
-                // If all anchors setting were out of the viewport, fallback
+                // If all anchors setting were out of the container, fallback
                 if (!isInViewSet) {
                     // Currently simply fallback to first anchor ...
                     position = this._getPositionForAnchor(this.preferredPositions[0], size);
@@ -567,12 +550,12 @@ module.exports = Aria.classDefinition({
             }
 
             // add scroll of container from absolute positioning
-            var documentScroll = this.popupContainer.getContainerScroll();
+            var containerScroll = this.popupContainer.getContainerScroll();
             if (left != null) {
-                left += documentScroll.scrollLeft;
+                left += containerScroll.scrollLeft;
             }
             if (top != null) {
-                top += documentScroll.scrollTop;
+                top += containerScroll.scrollTop;
             }
 
             // allow mixing of relative and absolute positioning #775
@@ -636,9 +619,9 @@ module.exports = Aria.classDefinition({
                     this.modalMaskDomElement.style.cssText = "position:absolute;display:none";
                 }
 
-                if (this._rootElementOverflow != -1) {
-                    this.popupContainer.changeContainerOverflow(this._rootElementOverflow);
-                    this._rootElementOverflow = -1;
+                if (this._containerOverflow != -1) {
+                    this.popupContainer.changeContainerOverflow(this._containerOverflow);
+                    this._containerOverflow = -1;
                 }
             }
         },
@@ -694,14 +677,13 @@ module.exports = Aria.classDefinition({
             // Insure that the top left corner is visible
             if (this.modalMaskDomElement) {
 
-                if (this._rootElementOverflow == -1) {
-                    this._rootElementOverflow = this.popupContainer.changeContainerOverflow("hidden");
+                if (this._containerOverflow == -1) {
+                    this._containerOverflow = this.popupContainer.changeContainerOverflow("hidden");
                 }
                 var containerSize = this.popupContainer.getScrollSize();
 
                 // Compute the style after scrollbars are removed from the
-                // document. Thus the dialog can be properly
-                // centered
+                // container. Thus the dialog can be properly centered.
                 this.computedStyle = this._getComputedStyle();
 
                 this.modalMaskDomElement.style.cssText = ['left:0px;top:0px;', 'width:', containerSize.width, 'px;', 'height:',
@@ -910,9 +892,9 @@ module.exports = Aria.classDefinition({
                     width: domReference.offsetWidth,
                     height: domReference.offsetHeight
                 };
-                var referenceIsInViewport = this.popupContainer.isInside(position, size, this.domElement);
+                var referenceIsInContainer = this.popupContainer.isInside(position, size, this.domElement);
 
-                if (referenceIsInViewport) {
+                if (referenceIsInContainer) {
                     this.referencePosition = position;
                     this.referenceSize = size;
                     this.refresh();
