@@ -19,6 +19,9 @@ var TypeUtils = require("../../utils/Type");
 var Viewport = require("./Viewport");
 var DomElement = require("./DomElement");
 
+/**
+ * This class allows to create and release popup containers.
+ */
 module.exports = Aria.classDefinition({
     $classpath : "aria.popups.container.Manager",
     $singleton : true,
@@ -26,6 +29,14 @@ module.exports = Aria.classDefinition({
         ID_NOT_FOUND : "Missing element with id '%1' in DOM."
     },
     $prototype : {
+        /**
+         * Creates (if needed) and returns a popup container object corresponding to the given DOM element.
+         * The return value is an object which implements the aria.popups.container.IPopupContainer interface.
+         * When the returned object is no longer useful, it has to be released with the releasePopupContainer
+         * method.
+         * @param {String|HTMLElement} idOrElt Id of an element or
+         * @return {Object}
+         */
         createPopupContainer : function (idOrElt) {
             var domElt = idOrElt;
             if (TypeUtils.isString(idOrElt)) {
@@ -39,6 +50,11 @@ module.exports = Aria.classDefinition({
             return (domElt == body ? Viewport : new DomElement(domElt));
         },
 
+        /**
+         * This method should be called with the value returned by createPopupContainer when it is no longer
+         * useful, to properly dispose it.
+         * @param {Object} instance Value returned by createPopupContainer.
+         */
         releasePopupContainer : function (instance) {
             if (instance instanceof DomElement) {
                 instance.$dispose();
