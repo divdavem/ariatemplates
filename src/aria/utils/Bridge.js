@@ -15,7 +15,9 @@
 var Aria = require("../Aria");
 var ariaUtilsAriaWindow = require("./AriaWindow");
 var ariaUtilsJson = require("./Json");
-
+var ariaUtilsFunction = require("./Function");
+var ariaUtilsFrameATLoader = require("./FrameATLoader");
+var ariaCoreDownloadMgr = require("../core/DownloadMgr");
 
 /**
  * Creates a subwindow and load a module inside
@@ -75,13 +77,6 @@ module.exports = Aria.classDefinition({
          * @type aria.templates.TemplateCtxt
          */
         this._rootTplCtxtRef = null;
-
-        /**
-         * setInterval id for attaching bridge into subwindow
-         * @type Number
-         */
-        this._bridgeAttachedInterval = false;
-
     },
     $destructor : function () {
         this.close();
@@ -116,86 +111,12 @@ module.exports = Aria.classDefinition({
             // this is for creating the same window (usefull for debugging)
             // this._subWindow = window.open("", config.title, options);
 
-            // retrieve current AT version to load the same on the subwindow
-            var scripts = Aria.$frameworkWindow.document.getElementsByTagName("script"), root = Aria.rootFolderPath, script, src, urlMatch, atJsName, atSkinName;
-            for (var i = 0, l = scripts.length; i < l; i++) {
-                script = scripts[i];
-                if (script.attributes && script.attributes["src"]) {
-                    src = script.attributes["src"].nodeValue;
-                    urlMatch = /aria\/(aria-?templates-([^\/]+)\.js)/.exec(src);
-                    if (urlMatch && urlMatch.length > 1) {
-                        atJsName = urlMatch[1]; // retrieve something like "aria-templates-1.0-SNAPSHOT.js"
-                        atSkinName = "atskin-" + urlMatch[2] + ".js";
-                        break;
-                    }
-                    if (/aria\/bootstrap.js/.test(src)) {
-                        // not packaged
-                        atJsName = "bootstrap.js";
-                        atSkinName = "atskin.js";
-                        break;
-                    }
-                }
-            }
-
-            // case dev mode : rootFolderPath might be wrong
-            if (root.match(/dev\/$/)) {
-                root = root.substring(0, root.length - 4);
-            }
-
-            if (!atJsName) {
-                // FIXME log Error
-                return false;
-            }
-
-            // create subwindow content
-            var pullTimeout = 500; // ms to wait between each check of Aria.loadTemplate
-            var devPart = "";
-
-            // This is use for debugging -> won't work with IE (scripts get injected after the body)
-            // var devPart = "dev/";
-
-            var sourceCode = [
-                    '<!DOCTYPE html>\n',
-                    "<html><head><title>" + config.title + "</title>", // HEAD
-
-                    "<script type='text/javascript'>Aria = { _xxDebug: true, rootFolderPath : '" + root + devPart
-                            + "' };</script>",
-                    "<script language='JavaScript' src='", // AT script
-                    root + devPart + "aria/" + atJsName, // AT script
-                    "'></script>", // AT script
-
-                    (aria.widgets && aria.widgets.AriaSkin) ? ["<script type='text/javascript'>",
-                            "Aria['classDefinition']({$classpath : 'aria.widgets.AriaSkin',", "$singleton : true,",
-                            "$prototype : window.aria.utils.Json.copy(",
-                            ariaUtilsJson.convertToJsonString(aria.widgets.AriaSkin.classDefinition.$prototype), ")",
-                            "});</script>"].join("") : ["<script language='JavaScript' src='", // AT Skin script
-                            root + "aria/css/" + atSkinName, // AT Skin script
-                            "'></script>" // AT Skin script
-                    ].join(""),
-
-                    "</head>", // END HEAD
-                    "<body onUnload='window.__atBridge&&__atBridge.close()' style='overflow:hidden;'>", // used to
-                    // restore environment
-                    "<div id='main'><h3 id='main_title' style='text-align:center;margin-top:200px;'>Starting.</h3></div>",
-                    "<script type='text/javascript'>var appStart = function () {", // START ToolsModule
-                    "if (window.Aria && window.Aria.loadTemplate && window.__atBridge) { window.__atBridge.moduleStart.call(window.__atBridge);}",
-                    "else { document.getElementById('main_title').innerHTML += '.'; setTimeout(appStart, "
-                            + pullTimeout + ");}}; appStart();", "</script>", // START ToolsModule
-                    "</body></html>"].join(""); // BODY
-
-            this._subWindow.document.write(sourceCode);
-            this._subWindow.document.close();
-
-            // double pulling mandatory for IE
-            var oSelf = this;
-            this._bridgeAttachedInterval = setInterval(function () {
-                // add bridge to subwindow
-                if (oSelf._subWindow) {
-                    oSelf._subWindow.__atBridge = oSelf;
-                } else {
-                    clearInterval(oSelf._bridgeAttachedInterval);
-                }
-            }, 2000);
+            ariaUtilsFrameATLoader.loadAriaTemplatesInFrame(this._subWindow, {
+                fn: this.moduleStart,
+                scope: this
+            }, {
+                iframePageCss: "html,body{padding:0;margin:0;overflow: hidden;}"
+            });
 
             this._config = config;
             ariaUtilsAriaWindow.attachWindow();
@@ -218,11 +139,14 @@ module.exports = Aria.classDefinition({
          * Function called from the sub window to start the module
          */
         moduleStart : function () {
-
             // start working in subwindow
-            var Aria = this._subWindow.Aria; // , aria = this._subWindow.aria;
+            var Aria = this._subWindow.Aria, aria = this._subWindow.aria;
+            this._subWindow.onunload = ariaUtilsFunction.bind(this.close, this);
 
-            clearInterval(this._bridgeAttachedInterval);
+            // link the url map and the root map in the sub-window
+            // to the corresponding maps in the main window:
+            aria.core.DownloadMgr._urlMap = ariaCoreDownloadMgr._urlMap;
+            aria.core.DownloadMgr._rootMap = ariaCoreDownloadMgr._rootMap;
 
             Aria.setRootDim({
                 width : {
@@ -248,7 +172,6 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _templatesReady : function () {
-
             // continue working in subwindow
             // var Aria = this._subWindow.Aria;
             var aria = this._subWindow.aria;
@@ -272,13 +195,19 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _moduleLoaded : function (moduleCtrlObject) {
-
             // finish working in subwindow
-            var Aria = this._subWindow.Aria; // , aria = this._subWindow.aria;
+            var window = this._subWindow;
+            var document = window.document;
+            var Aria = window.Aria; // , aria = this._subWindow.aria;
+
+            var div = document.createElement("div");
+            div.setAttribute("id", "main");
+            document.body.appendChild(div);
+
             var moduleCtrl = moduleCtrlObject.moduleCtrlPrivate;
             Aria.loadTemplate({
                 classpath : this._config.displayClasspath,
-                div : 'main',
+                div : div,
                 moduleCtrl : moduleCtrl,
                 width : {
                     min : 16

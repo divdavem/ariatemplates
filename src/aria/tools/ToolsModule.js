@@ -64,16 +64,25 @@ module.exports = Aria.classDefinition({
 
             this.bridge = args.bridge;
 
+            var modulesList = [];
+
             // add bridge to submodules init parameters
             for (var i = 0, l = this.subModulesList.length; i < l; i++) {
-                if (!this.subModulesList[i].initArgs) {
-                    this.subModulesList[i].initArgs = {};
-                    this.subModulesList[i].initArgs.bridge = this.bridge;
+                var curModule = this.subModulesList[i];
+                if (!curModule.initArgs) {
+                    curModule.initArgs = {};
+                    curModule.initArgs.bridge = this.bridge;
                 }
+                modulesList.push({
+                    // display is not a valid property for loadSubModules
+                    refpath: curModule.refpath,
+                    classpath: curModule.classpath,
+                    initArgs: curModule.initArgs
+                });
             }
 
             // load subnodules
-            this.loadSubModules(this.subModulesList, {
+            this.loadSubModules(modulesList, {
                 fn : this.onSubModulesReady,
                 scope : this
             });
