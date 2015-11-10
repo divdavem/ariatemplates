@@ -47,6 +47,7 @@ module.exports = Aria.classDefinition({
             controller.setReferenceDate(new Date(cfg.referenceDate));
         }
         this._dropDownIconFocus = false;
+        this._calendarFocus = false;
 
         var iconTooltip = cfg.iconTooltip ? 'title="' + ariaUtilsString.escapeForHTML(cfg.iconTooltip) + '"' : '';
         this._iconsAttributes = {
@@ -121,7 +122,7 @@ module.exports = Aria.classDefinition({
          * @param {Number} end
          */
         setCaretPosition : function (start, end) {
-            if (this._dropDownIconFocus) {
+            if (this._dropDownIconFocus || this._calendarFocus) {
                 this._currentCaretPosition = {
                     start : start,
                     end : end
@@ -136,7 +137,7 @@ module.exports = Aria.classDefinition({
          * @return {Object} the caret position (start end end)
          */
         getCaretPosition : function () {
-            if (this._dropDownIconFocus) {
+            if (this._dropDownIconFocus || this._calendarFocus) {
                 var currentCaretPosition = this._currentCaretPosition;
                 if (currentCaretPosition) {
                     return currentCaretPosition;
@@ -156,18 +157,22 @@ module.exports = Aria.classDefinition({
          */
         focus : function () {
             if (this._dropdownPopup) {
-                if (this._hasFocus && !this._dropDownIconFocus) {
+                var isRightItemFocused = this._cfg.waiAria ? this._calendarFocus : this._dropDownIconFocus;
+                console.log("right item focused: " + isRightItemFocused);
+                var itemToFocus = this._cfg.waiAria ? this.controller.getCalendar() : this._dropDownIcon;
+
+                if (this._hasFocus && !isRightItemFocused) {
                     // passing the focus from the text field to the icon
                     this._keepFocus = true;
                 }
                 // override the focus method so that calling focus on the DatePicker while it is open
                 // actually focuses the dropdown icon
                 // focusing the DatePicker while the popup is open means focusing the dropdown icon
-                if (!this._dropDownIconFocus) {
-                    this._dropDownIcon.focus();
+                if (!isRightItemFocused) {
+                    itemToFocus.focus();
                 }
             } else {
-                if (this._hasFocus && this._dropDownIconFocus) {
+                if (this._hasFocus && (this._dropDownIconFocus || this._calendarFocus)) {
                     // passing the focus from the icon to the text field
                     this._keepFocus = true;
                 }
@@ -226,7 +231,7 @@ module.exports = Aria.classDefinition({
             var calendarConf = {
                 block : true,
                 startDate : dm.jsDate,
-                tabIndex : -1,
+                tabIndex : cfg.waiAria ? 0 : -1,
                 label : cfg.calendarLabel,
                 defaultTemplate : cfg.calendarTemplate,
                 waiAria: cfg.waiAria,
@@ -236,6 +241,18 @@ module.exports = Aria.classDefinition({
                 onclick : {
                     fn : this._clickOnDate,
                     scope : this
+                },
+                onkeydown : cfg.waiAria ? {
+                    fn: this._calendar_onkeydown,
+                    scope : this
+                } : null,
+                onfocus : {
+                    fn: this._calendar_onfocus,
+                    scope: this
+                },
+                onblur : {
+                    fn: this._calendar_onblur,
+                    scope: this
                 },
                 bind : {
                     "value" : {
@@ -261,6 +278,23 @@ module.exports = Aria.classDefinition({
             this.controller.setCalendar(calendar);
             out.registerBehavior(calendar);
             calendar.writeMarkup(out);
+        },
+
+        _calendar_onkeydown: function (domEvtWrapper) {
+            if (domEvtWrapper.keyCode === 32) {
+                domEvtWrapper.charCode = 32;
+            }
+            this._handleKey(domEvtWrapper);
+        },
+
+        _calendar_onfocus: function () {
+            this._calendarFocus = true;
+            console.log("_calendar_onfocus");
+        },
+
+        _calendar_onblur: function () {
+            this._calendarFocus = false;
+            console.log("_calendar_onblur");
         },
 
         /**

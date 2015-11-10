@@ -18,6 +18,7 @@ var ariaWidgetsCalendarCalendarStyle = require("./CalendarStyle.tpl.css");
 require("./CalendarTemplate.tpl");
 var ariaWidgetsTemplateBasedWidget = require("../TemplateBasedWidget");
 var ariaCoreBrowser = require("../../core/Browser");
+var ariaTemplatesDomEventWrapper = require("../../templates/DomEventWrapper");
 
 /**
  * Calendar widget, which is a template-based widget. Most of the logic of the calendar is implemented in the
@@ -142,6 +143,13 @@ module.exports = Aria.classDefinition({
          */
         _dom_onkeydown : function (domEvt) {
             var domElt = this.getDom();
+            var domEvtWrapper = new ariaTemplatesDomEventWrapper(domEvt);
+            this.evalCallback(this._cfg.onkeydown, domEvtWrapper);
+            var stopPropagation = domEvtWrapper.hasStopPropagation;
+            domEvtWrapper.$dispose();
+            if (stopPropagation) {
+                return;
+            }
             if (this.sendKey(domEvt.charCode, domEvt.keyCode)) {
                 domEvt.preventDefault(true);
                 domElt.focus();
@@ -155,6 +163,7 @@ module.exports = Aria.classDefinition({
         _dom_onfocus : function () {
             this._hasFocus = true;
             this._focusUpdate();
+            this.evalCallback(this._cfg.onfocus);
         },
 
         /**
@@ -164,6 +173,7 @@ module.exports = Aria.classDefinition({
         _dom_onblur : function () {
             this._hasFocus = false;
             this._focusUpdate();
+            this.evalCallback(this._cfg.onblur);
         },
 
         /**
@@ -269,6 +279,11 @@ module.exports = Aria.classDefinition({
                     return this._subTplCtxt.$getId(data.settings.dayDomIdPrefix + new Date(jsDate.getFullYear(), jsDate.getMonth(), jsDate.getDate(), 12).getTime());
                 }
             }
+        },
+
+        focus: function () {
+            var dom = this.getDom();
+            dom.focus();
         }
     }
 });

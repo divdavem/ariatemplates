@@ -1664,6 +1664,18 @@ module.exports = Aria.beanDefinitions({
                     $type : "common:Callback",
                     $description : "Function to be called when the selected date or range in the calendar changes because of user action (click or keyboard selection)."
                 },
+                "onfocus" : {
+                    $type : "common:Callback",
+                    $description : "Function to be called when the calendar widget is focused."
+                },
+                "onblur" : {
+                    $type : "common:Callback",
+                    $description : "Function to be called when the calendar widget is blured."
+                },
+                "onkeydown" : {
+                    $type : "common:Callback",
+                    $description : "Function to be called when the user types a key while the widget is focused."
+                },
                 "minValue" : {
                     $type : "json:Date",
                     $description : "Minimum date for the value property."
