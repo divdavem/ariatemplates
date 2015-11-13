@@ -32,6 +32,9 @@ module.exports = Aria.classDefinition({
         this.$TemplateBasedWidget.constructor.apply(this, arguments);
         var sclass = this._cfg.sclass;
         var skinObj = aria.widgets.AriaSkinInterface.getSkinObject(this._skinnableClass, sclass);
+        if (cfg.waiAria) {
+            this._extraAttributes += ' role="application" ';
+        }
         this._hasFocus = false;
         this._initTemplate({
             defaultTemplate : skinObj.defaultTemplate,
@@ -45,6 +48,8 @@ module.exports = Aria.classDefinition({
                         selectedClass : "xCalendar_" + sclass + "_selected"
                     },
                     settings : {
+                        waiAria : cfg.waiAria,
+                        waiAriaDateFormat: cfg.waiAriaDateFormat,
                         ranges : cfg.ranges,
                         value : cfg.value,
                         minValue : cfg.minValue,
@@ -89,6 +94,7 @@ module.exports = Aria.classDefinition({
                     this.setProperty("startDate", this._subTplData.settings.startDate);
                 }
                 if (evt.properties["value"]) {
+                    this._updateAriaActiveDescendant();
                     this.setProperty("value", this._subTplData.settings.value);
                     this.evalCallback(this._cfg.onchange);
                 }
@@ -223,6 +229,45 @@ module.exports = Aria.classDefinition({
                 });
             } else {
                 return false;
+            }
+        },
+
+        /**
+         * Updates the aria-activedescendant attribute.
+         */
+        _updateAriaActiveDescendant : function() {
+            if (this._cfg.waiAria) {
+                var domElt = this._tplWidget.getDom();
+                var ariaActiveDescendant = this.getDayDomId(this._subTplData.settings.value);
+                if (ariaActiveDescendant != null) {
+                    domElt.setAttribute("aria-activedescendant", ariaActiveDescendant);
+                } else {
+                    domElt.removeAttribute("aria-activedescendant");
+                }
+            }
+        },
+
+        /**
+         * Returns the id of the root DOM element containing the calendar.
+         * @return {String} id of the root DOM element containing the calendar.
+         */
+        getCalendarDomId : function () {
+            return this._tplWidget.getDom().id;
+        },
+
+        /**
+         * Returns the id of the DOM element in the calendar corresponding to the given date.
+         * This method only works if accessibility was enabled at the time the calendar widget was created.
+         * @param {Date} jsDate date
+         * @return {String} id of the DOM element or undefined if the calendar is not fully loaded yet, accessibility
+         * is disabled or the date is invalid
+         */
+        getDayDomId : function (jsDate) {
+            if (this._subTplCtxt && jsDate) {
+                var data = this._subTplModuleCtrl.getData();
+                if (data.settings.waiAria) {
+                    return this._subTplCtxt.$getId(data.settings.dayDomIdPrefix + new Date(jsDate.getFullYear(), jsDate.getMonth(), jsDate.getDate(), 12).getTime());
+                }
             }
         }
     }

@@ -791,6 +791,10 @@ module.exports = Aria.beanDefinitions({
                     $type : "environmentBase:inputFormatTypes",
                     $description : "Date pattern used to match user input and convert it in a Javascript valid date."
                 },
+                "waiAriaDateFormat" : {
+                    $type : "environmentBase:inputFormatTypes",
+                    $description : "Date pattern used by screen readers to read the date."
+                },
                 "minValue" : {
                     $type : "json:Date",
                     $description : "Minimum date for the value property."
@@ -860,8 +864,11 @@ module.exports = Aria.beanDefinitions({
                 },
                 "iconTooltip" : {
                     $type : "json:String",
-                    $description : "Tooltip label for the datepicker icon",
-                    $default : "Open the Calendar"
+                    $description : "Tooltip for the datepicker icon"
+                },
+                "iconLabel" : {
+                    $type : "json:String",
+                    $description : "Label for the datepicker icon (defines the aria-label attribute when waiAria is true)."
                 },
                 "bind" : {
                     $type : "DropDownTextInputCfg.bind",
@@ -1684,6 +1691,10 @@ module.exports = Aria.beanDefinitions({
                     $description : "First day of the week. 0 = Sunday, ... 6 = Saturday. The null value means that it is set according to the application environment.",
                     $minValue : 0,
                     $maxValue : 6
+                },
+                "waiAriaDateFormat" : {
+                    $type : "environmentBase:inputFormatTypes",
+                    $description : "Date pattern used by screen readers to read the date."
                 },
                 "monthLabelFormat" : {
                     $type : "json:String",
