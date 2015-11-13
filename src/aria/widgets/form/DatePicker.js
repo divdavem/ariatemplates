@@ -51,11 +51,13 @@ module.exports = Aria.classDefinition({
 
         var iconTooltip = cfg.iconTooltip ? 'title="' + ariaUtilsString.escapeForHTML(cfg.iconTooltip) + '"' : '';
         this._iconsAttributes = {
-            "dropdown": 'tabIndex="-1" ' + iconTooltip
+            "dropdown": iconTooltip
         };
         if (cfg.waiAria) {
             var iconLabel = cfg.iconLabel ? ' aria-label="' + ariaUtilsString.escapeForHTML(cfg.iconLabel) + '"' : '';
             this._iconsAttributes.dropdown += ' role="button" aria-expanded="false" aria-haspopup="true"' + iconLabel;
+        } else {
+            this._iconsAttributes.dropdown += ' tabIndex="-1"';
         }
     },
     $destructor : function () {
