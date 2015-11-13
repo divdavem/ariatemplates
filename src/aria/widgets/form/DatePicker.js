@@ -83,14 +83,6 @@ module.exports = Aria.classDefinition({
                     this._dropDownIconFocus = true;
                 } else if (evt.name === "iconBlur") {
                     this._dropDownIconFocus = false;
-                } else if (evt.name === "iconKeyDown" && this._cfg.waiAria) {
-                    var keyCode = evt.event.keyCode;
-                    if (!this._dropdownPopup) {
-                        if (keyCode === 32 /* SPACE */ || keyCode === 13 /* ENTER */) {
-                            evt.event.preventDefault(true);
-                            this._toggleDropdown();
-                        }
-                    }
                 }
             }
             this.$DropDownTextInput._frame_events.call(this, evt);
