@@ -207,7 +207,7 @@ module.exports = Aria.classDefinition({
         eventMap : {
             "click" : "iconClick",
             "mousedown" : "iconMouseDown",
-            "mouseup" : "iconMouseDown",
+            "mouseup" : "iconMouseUp",
             "keydown" : "iconKeyDown",
             "blur" : "iconBlur",
             "focus" : "iconFocus"

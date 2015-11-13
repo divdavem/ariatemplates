@@ -113,9 +113,7 @@ module.exports = Aria.classDefinition({
          */
         _frame_events : function (evt) {
             if (evt.name == "iconMouseDown" && evt.iconName == "dropdown" && !this._cfg.disabled) {
-                if (this._hasFocus) {
-                    this._keepFocus = true;
-                }
+                evt.event.preventDefault(true);
             } else if (evt.name == "iconClick" && evt.iconName == "dropdown" && !this._cfg.disabled) {
                 this._toggleDropdown();
             }

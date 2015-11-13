@@ -1676,6 +1676,10 @@ module.exports = Aria.beanDefinitions({
                     $type : "common:Callback",
                     $description : "Function to be called when the user types a key while the widget is focused."
                 },
+                "onmousedown" : {
+                    $type : "common:Callback",
+                    $description : "Function to be called when the user presses the mouse on the calendar."
+                },
                 "minValue" : {
                     $type : "json:Date",
                     $description : "Minimum date for the value property."

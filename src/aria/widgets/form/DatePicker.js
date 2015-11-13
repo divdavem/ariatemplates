@@ -158,7 +158,6 @@ module.exports = Aria.classDefinition({
         focus : function () {
             if (this._dropdownPopup) {
                 var isRightItemFocused = this._cfg.waiAria ? this._calendarFocus : this._dropDownIconFocus;
-                console.log("right item focused: " + isRightItemFocused);
                 var itemToFocus = this._cfg.waiAria ? this.controller.getCalendar() : this._dropDownIcon;
 
                 if (this._hasFocus && !isRightItemFocused) {
@@ -186,7 +185,7 @@ module.exports = Aria.classDefinition({
          */
         _dom_onclick : function () {
             this.$DropDownTextInput._dom_onclick.call(this);
-            if (!this._dropDownIconFocus) {
+            if (!this._dropDownIconFocus && !this._calendarFocus) {
                 // clicking on the field while the popup is visible should close it
                 this._closeDropdown();
             }
@@ -200,8 +199,15 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _dom_onfocus : function (event) {
-            this.$DropDownTextInput._dom_onfocus.apply(this, arguments);
             this._keepFocus = false;
+            this.$DropDownTextInput._dom_onfocus.apply(this, arguments);
+        },
+
+        _dom_onblur : function (event) {
+            this.$DropDownTextInput._dom_onblur.apply(this, arguments);
+            if (!this._keepFocus) {
+                this._closeDropdown();
+            }
         },
 
         /**
@@ -246,6 +252,10 @@ module.exports = Aria.classDefinition({
                     fn: this._calendar_onkeydown,
                     scope : this
                 } : null,
+                onmousedown : cfg.waiAria ? {
+                    fn: this._calendar_onmousedown,
+                    scope: this
+                } : null,
                 onfocus : {
                     fn: this._calendar_onfocus,
                     scope: this
@@ -287,14 +297,20 @@ module.exports = Aria.classDefinition({
             this._handleKey(domEvtWrapper);
         },
 
-        _calendar_onfocus: function () {
-            this._calendarFocus = true;
-            console.log("_calendar_onfocus");
+        _calendar_onmousedown : function (domEvtWrapper) {
+            domEvtWrapper.preventDefault(true);
         },
 
-        _calendar_onblur: function () {
-            this._calendarFocus = false;
+        _calendar_onfocus: function (domEvtWrapper) {
+            console.log("_calendar_onfocus");
+            this._calendarFocus = true;
+            this._dom_onfocus.call(this, domEvtWrapper);
+        },
+
+        _calendar_onblur: function (domEvtWrapper) {
             console.log("_calendar_onblur");
+            this._calendarFocus = false;
+            this._dom_onblur.call(this, domEvtWrapper);
         },
 
         /**
@@ -307,7 +323,6 @@ module.exports = Aria.classDefinition({
                 var dropDownIcon = this._dropDownIcon;
                 var calendarId = this.controller.getCalendar().getCalendarDomId();
                 dropDownIcon.setAttribute("aria-owns", calendarId);
-                dropDownIcon.setAttribute("aria-activedescendant", calendarId);
                 dropDownIcon.setAttribute("aria-expanded", "true");
             }
         },
@@ -326,10 +341,10 @@ module.exports = Aria.classDefinition({
         },
 
         _afterDropdownClose : function () {
+            this._calendarFocus = false;
             var dropDownIcon = this._dropDownIcon;
             if (this._cfg.waiAria && dropDownIcon) {
                 dropDownIcon.removeAttribute("aria-owns");
-                dropDownIcon.removeAttribute("aria-activedescendant");
                 dropDownIcon.setAttribute("aria-expanded", "false");
             }
             this.$DropDownTextInput._afterDropdownClose.call(this);

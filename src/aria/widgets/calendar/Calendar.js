@@ -157,6 +157,17 @@ module.exports = Aria.classDefinition({
         },
 
         /**
+         * Mousedown event
+         * @protected
+         * @param {aria.DomEvent} domEvt Mousedown event
+         */
+        _dom_onmousedown : function (domEvt) {
+            var domEvtWrapper = new ariaTemplatesDomEventWrapper(domEvt);
+            this.evalCallback(this._cfg.onmousedown, domEvtWrapper);
+            domEvtWrapper.$dispose();
+        },
+
+        /**
          * Called when the calendar gets the focus.
          * @protected
          */
