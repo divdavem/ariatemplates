@@ -120,6 +120,18 @@ module.exports = Aria.classDefinition({
          * keyCode properties). This object may be or may not be an instance of aria.DomEvent.
          */
         _checkKeyStroke : function (event) {
+            if (this._cfg.waiAria && !this._dropdownPopup && event.keyCode === 40) {
+                // disable arrow down key when waiAria is enabled and the popup is closed
+                return;
+            }
+            if (event.shiftKey && event.keyCode === 121) {
+                // SHIFT+F10
+                if (event.preventDefault) {
+                    event.preventDefault(true);
+                }
+                this._toggleDropdown();
+                return;
+            }
             var controller = this.controller;
             var cp = this.getCaretPosition();
             if (cp) {
