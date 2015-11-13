@@ -50,14 +50,11 @@ module.exports = Aria.classDefinition({
 
         var iconTooltip = cfg.iconTooltip ? 'title="' + ariaUtilsString.escapeForHTML(cfg.iconTooltip) + '"' : '';
         this._iconsAttributes = {
-            "dropdown": iconTooltip
+            "dropdown": 'tabIndex="-1" ' + iconTooltip
         };
         if (cfg.waiAria) {
-            this._extraAttributes += ' role="application" ';
             var iconLabel = cfg.iconLabel ? ' aria-label="' + ariaUtilsString.escapeForHTML(cfg.iconLabel) + '"' : '';
-            this._iconsAttributes.dropdown += ' tabIndex="0" role="application" aria-expanded="false" aria-haspopup="true"' + iconLabel;
-        } else {
-            this._iconsAttributes.dropdown += ' tabIndex="-1"';
+            this._iconsAttributes.dropdown += ' role="button" aria-expanded="false" aria-haspopup="true"' + iconLabel;
         }
     },
     $destructor : function () {

@@ -20,20 +20,23 @@
         <div style="margin:10px;font-size:+3;font-weight:bold;">DatePicker accessibility sample</div>
         <div style="margin:10px;">
             With accessibility enabled: <br><br>
-            {call datePicker("dpWaiEnabled", true) /} <br><br><br>
+            {call datePicker("dpWaiEnabled", true) /}<br>
             With accessibility disabled: <br><br>
-            {call datePicker("dpWaiDisabled", false) /} <br><br><br>
+            {call datePicker("dpWaiDisabled", false) /}<br>
         </div>
     {/macro}
 
     {macro datePicker(id, waiAria)}
+        <label>Previous field <input></label> <br><br>
         {@aria:DatePicker {
             id: id,
             label: "Travel date",
             iconTooltip: "Display calendar",
+            iconLabel: "Choose the date in calendar",
             waiAria: waiAria,
             waiAriaDateFormat: "EEEE d MMMM yyyy",
-        }/}
+        }/} <br><br>
+        <label>Next field <input></label> <br><br>
     {/macro}
 
 {/Template}
