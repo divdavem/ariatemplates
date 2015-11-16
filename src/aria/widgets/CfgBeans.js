@@ -866,10 +866,6 @@ module.exports = Aria.beanDefinitions({
                     $type : "json:String",
                     $description : "Tooltip for the datepicker icon"
                 },
-                "waiAriaIconLabel" : {
-                    $type : "json:String",
-                    $description : "aria-label for the datepicker icon (used only when waiAria is true)."
-                },
                 "waiAriaCalendarLabel": {
                     $type : "json:String",
                     $description : "aria-label to set on the calendar (only used when waiAria is true)."
