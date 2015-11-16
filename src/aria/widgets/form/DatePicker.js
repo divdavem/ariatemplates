@@ -296,13 +296,11 @@ module.exports = Aria.classDefinition({
         },
 
         _calendar_onfocus: function (domEvtWrapper) {
-            console.log("_calendar_onfocus");
             this._calendarFocus = true;
             this._dom_onfocus.call(this, domEvtWrapper);
         },
 
         _calendar_onblur: function (domEvtWrapper) {
-            console.log("_calendar_onblur");
             this._calendarFocus = false;
             this._dom_onblur.call(this, domEvtWrapper);
         },
