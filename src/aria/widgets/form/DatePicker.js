@@ -310,13 +310,16 @@ module.exports = Aria.classDefinition({
          * @override
          */
         _afterDropdownOpen : function () {
-            this.$DropDownTextInput._afterDropdownOpen.apply(this, arguments);
             if (this._cfg.waiAria) {
+                // it is important to set aria-owns and aria-expanded attributes before
+                // calling the parent _afterDropdownOpen method (which gives focus to
+                // the calendar)
                 var dropDownIcon = this._dropDownIcon;
                 var calendarId = this.controller.getCalendar().getCalendarDomId();
                 dropDownIcon.setAttribute("aria-owns", calendarId);
                 dropDownIcon.setAttribute("aria-expanded", "true");
             }
+            this.$DropDownTextInput._afterDropdownOpen.apply(this, arguments);
         },
 
         _closeDropdown : function () {

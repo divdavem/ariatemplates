@@ -32,7 +32,7 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _openDropdown : function () {
-
+            console.log("_openDropdown");
             if (this._dropdownPopup) {
                 return;
             }
@@ -116,6 +116,7 @@ module.exports = Aria.classDefinition({
                 evt.event.preventDefault(true);
             } else if (evt.name == "iconClick" && evt.iconName == "dropdown" && !this._cfg.disabled) {
                 this._toggleDropdown();
+                evt.event.preventDefault(true);
             }
         },
 
