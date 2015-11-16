@@ -19,6 +19,7 @@ require("./CalendarTemplate.tpl");
 var ariaWidgetsTemplateBasedWidget = require("../TemplateBasedWidget");
 var ariaCoreBrowser = require("../../core/Browser");
 var ariaTemplatesDomEventWrapper = require("../../templates/DomEventWrapper");
+var ariaUtilsString = require("../../utils/String");
 
 /**
  * Calendar widget, which is a template-based widget. Most of the logic of the calendar is implemented in the
@@ -34,7 +35,8 @@ module.exports = Aria.classDefinition({
         var sclass = this._cfg.sclass;
         var skinObj = aria.widgets.AriaSkinInterface.getSkinObject(this._skinnableClass, sclass);
         if (cfg.waiAria) {
-            this._extraAttributes += ' role="application" ';
+            var waiAriaLabel = cfg.waiAriaLabel ? ' aria-label="' + ariaUtilsString.escapeForHTML(cfg.waiAriaLabel) + '"' : '';
+            this._extraAttributes += ' role="application"' + waiAriaLabel;
         }
         this._hasFocus = false;
         this._initTemplate({

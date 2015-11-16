@@ -30,9 +30,10 @@
         <label>Previous field <input></label> <br><br>
         {@aria:DatePicker {
             id: id,
+            waiAriaCalendarLabel: "Calendar",
             label: "Travel date",
             iconTooltip: "Display calendar",
-            iconLabel: "Choose the date in calendar",
+            waiAriaIconLabel: "Choose the date in calendar",
             waiAria: waiAria,
             waiAriaDateFormat: "EEEE d MMMM yyyy",
         }/} <br><br>

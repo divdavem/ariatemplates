@@ -54,8 +54,8 @@ module.exports = Aria.classDefinition({
             "dropdown": iconTooltip
         };
         if (cfg.waiAria) {
-            var iconLabel = cfg.iconLabel ? ' aria-label="' + ariaUtilsString.escapeForHTML(cfg.iconLabel) + '"' : '';
-            this._iconsAttributes.dropdown += ' role="button" aria-expanded="false" aria-haspopup="true"' + iconLabel;
+            var waiAriaIconLabel = cfg.waiAriaIconLabel ? ' aria-label="' + ariaUtilsString.escapeForHTML(cfg.waiAriaIconLabel) + '"' : '';
+            this._iconsAttributes.dropdown += ' role="button" aria-expanded="false" aria-haspopup="true"' + waiAriaIconLabel;
         } else {
             this._iconsAttributes.dropdown += ' tabIndex="-1"';
         }
@@ -236,6 +236,7 @@ module.exports = Aria.classDefinition({
                 defaultTemplate : cfg.calendarTemplate,
                 waiAria: cfg.waiAria,
                 waiAriaDateFormat: cfg.waiAriaDateFormat,
+                waiAriaLabel: cfg.waiAriaCalendarLabel,
                 minValue : cfg.minValue,
                 maxValue : cfg.maxValue,
                 onclick : {

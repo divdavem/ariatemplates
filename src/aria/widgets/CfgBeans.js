@@ -866,9 +866,13 @@ module.exports = Aria.beanDefinitions({
                     $type : "json:String",
                     $description : "Tooltip for the datepicker icon"
                 },
-                "iconLabel" : {
+                "waiAriaIconLabel" : {
                     $type : "json:String",
-                    $description : "Label for the datepicker icon (defines the aria-label attribute when waiAria is true)."
+                    $description : "aria-label for the datepicker icon (used only when waiAria is true)."
+                },
+                "waiAriaCalendarLabel": {
+                    $type : "json:String",
+                    $description : "aria-label to set on the calendar (only used when waiAria is true)."
                 },
                 "bind" : {
                     $type : "DropDownTextInputCfg.bind",
@@ -1711,6 +1715,10 @@ module.exports = Aria.beanDefinitions({
                 "waiAriaDateFormat" : {
                     $type : "environmentBase:inputFormatTypes",
                     $description : "Date pattern used by screen readers to read the date."
+                },
+                "waiAriaLabel": {
+                    $type : "json:String",
+                    $description : "aria-label to set on the whole calendar (only used when waiAria is true)."
                 },
                 "monthLabelFormat" : {
                     $type : "json:String",
