@@ -32,7 +32,6 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _openDropdown : function () {
-            console.log("_openDropdown");
             if (this._dropdownPopup) {
                 return;
             }
