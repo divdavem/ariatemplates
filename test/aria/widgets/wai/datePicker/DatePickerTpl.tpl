@@ -33,7 +33,7 @@
             label: "Travel date",
             iconTooltip: "Display calendar",
             waiAria: waiAria,
-            waiAriaCalendarLabel: "Calendar",
+            waiAriaCalendarLabel: "Calendar table. Use arrow keys to navigate and space to validate.",
             waiAriaDateFormat: "EEEE d MMMM yyyy"
         }/} <br><br>
         <label>Next field <input></label> <br><br>
