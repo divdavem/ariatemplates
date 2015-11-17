@@ -32,7 +32,6 @@ module.exports = Aria.classDefinition({
          * @protected
          */
         _openDropdown : function () {
-
             if (this._dropdownPopup) {
                 return;
             }
@@ -113,11 +112,10 @@ module.exports = Aria.classDefinition({
          */
         _frame_events : function (evt) {
             if (evt.name == "iconMouseDown" && evt.iconName == "dropdown" && !this._cfg.disabled) {
-                if (this._hasFocus) {
-                    this._keepFocus = true;
-                }
+                evt.event.preventDefault(true);
             } else if (evt.name == "iconClick" && evt.iconName == "dropdown" && !this._cfg.disabled) {
                 this._toggleDropdown();
+                evt.event.preventDefault(true);
             }
         },
 
@@ -146,8 +144,6 @@ module.exports = Aria.classDefinition({
          */
         _afterDropdownOpen : function () {
             this._setPopupOpenProperty(true);
-            // when the popup is clicked, keep the focus on the right element:
-            this._keepFocus = true;
             this.focus(null, true);
         },
 
@@ -169,9 +165,7 @@ module.exports = Aria.classDefinition({
                     this._hasFocus = false;
                     this._updateState();
                 }
-
             }
-            this._keepFocus = false;
         },
 
         /**

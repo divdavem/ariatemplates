@@ -336,6 +336,29 @@ module.exports = Aria.classDefinition({
                 this._cfg.popupOpen = false;
             }
             this.$DropDownTextInput.initWidget.call(this);
+        },
+
+        /**
+         * Internal method called when the popup should be either closed or opened depending on the state of the
+         * controller and whether it is currently opened or closed. Called by the dropdown button for example.
+         * @override
+         */
+        _toggleDropdown: function () {
+            // toggleDropdown should not make the virtual keyboard appear on touch devices
+            this._updateFocusNoKeyboard();
+
+            // The autocomplete needs to be focused before we call toggleDropdown
+            // because the onCheck event can be raised synchronously, and our
+            // listener (_reactToControllerReportEvent) does nothing if the widget
+            // is not focused when receiving the onCheck event
+            if (!this._hasFocus) {
+                this.focus(null, true);
+            }
+
+            var report = this.controller.toggleDropdown(this.getTextInputField().value, this._dropdownPopup != null);
+            this._reactToControllerReport(report, {
+                _hasFocus: true
+            });
         }
     }
 });
