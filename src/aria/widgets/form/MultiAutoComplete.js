@@ -546,24 +546,6 @@ module.exports = Aria.classDefinition({
         },
 
         /**
-         * Callback for the event onAfterOpen raised by the popup.
-         * @override
-         */
-        _afterDropdownOpen : function () {
-            this._keepFocus = true;
-            this.$AutoComplete._afterDropdownOpen.apply(this, arguments);
-        },
-
-        /**
-         * Callback for the event onAfterClosed raised by the popup.
-         * @override
-         */
-        _afterDropdownClose : function () {
-            this.$AutoComplete._afterDropdownClose.apply(this, arguments);
-            this._keepFocus = false;
-        },
-
-        /**
          * Sets _keepFocus back to false. This is done asynchronously on IE (because the focus event is raised
          * asynchronously on IE).
          */

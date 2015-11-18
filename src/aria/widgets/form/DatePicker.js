@@ -69,6 +69,20 @@ module.exports = Aria.classDefinition({
         _skinnableClass : "DatePicker",
 
         /**
+         * Handle events raised by the frame
+         * @param {Object} evt
+         * @override
+         */
+        _frame_events : function (evt) {
+            if (evt.name == "iconMouseDown" && evt.iconName == "dropdown" && !this._cfg.disabled) {
+                evt.event.preventDefault(true);
+            } else if (evt.name == "iconClick" && evt.iconName == "dropdown" && !this._cfg.disabled) {
+                this._toggleDropdown();
+                evt.event.preventDefault(true);
+            }
+        },
+
+        /**
          * Callback called when the user clicks on a date in the calendar.
          */
         _clickOnDate : function (evt) {
@@ -130,6 +144,8 @@ module.exports = Aria.classDefinition({
          * @override
          */
         focus : function () {
+            // By default, keepFocus is false, unless it is set to true later:
+            this._keepFocus = false;
             if (this._dropdownPopup) {
                 var calendarFocus = this._calendarFocus;
 
@@ -283,6 +299,21 @@ module.exports = Aria.classDefinition({
         _calendar_onblur: function () {
             this._calendarFocus = false;
             this._dom_onblur();
+        },
+
+        /**
+         * Internal method called when the popup should be either closed or opened depending on the state of the
+         * controller and whether it is currently opened or closed. In any case, keep the focus on the field. Called by
+         * the widget button for example.
+         * @override
+         */
+        _toggleDropdown : function () {
+            // toggleDropdown should not make the virtual keyboard appear on touch devices
+            this._updateFocusNoKeyboard();
+            var report = this.controller.toggleDropdown(this.getTextInputField().value, this._dropdownPopup != null);
+            this._reactToControllerReport(report, {
+                hasFocus : true
+            });
         },
 
         /**

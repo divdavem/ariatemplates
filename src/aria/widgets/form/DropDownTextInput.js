@@ -73,10 +73,16 @@ module.exports = Aria.classDefinition({
         _toggleDropdown : function () {
             // toggleDropdown should not make the virtual keyboard appear on touch devices
             this._updateFocusNoKeyboard();
+            if (!this._hasFocus) {
+                this.focus(null, true);
+            }
+
             var report = this.controller.toggleDropdown(this.getTextInputField().value, this._dropdownPopup != null);
             this._reactToControllerReport(report, {
                 hasFocus : true
             });
+
+            this.focus(null, true);
         },
 
         /**

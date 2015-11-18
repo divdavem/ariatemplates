@@ -315,21 +315,6 @@ module.exports = Aria.classDefinition({
             // focus the list when popup is opened
             this._refreshPopup(args);
             this._dropDownList.focus();
-        },
-
-        /**
-         * Handle events raised by the frame
-         * @override
-         * @param {Object} evt
-         */
-        _frame_events : function (evt) {
-            if (evt.name == "iconMouseDown" && evt.iconName == "dropdown" && !this._cfg.disabled) {
-                if (this._hasFocus) {
-                    this._keepFocus = true;
-                }
-            } else {
-                this.$DropDownTextInput._frame_events.apply(this, arguments);
-            }
         }
     }
 });
