@@ -22,7 +22,8 @@
             With accessibility enabled: <br><br>
             {call datePicker("dpWaiEnabled", true) /}<br>
             With accessibility disabled: <br><br>
-            {call datePicker("dpWaiDisabled", false) /}<br>
+            {call datePicker("dpWaiDisabled", false) /}<br><br>
+            <textarea {id "jawsOutput"/}></textarea>
         </div>
     {/macro}
 
