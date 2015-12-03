@@ -19,6 +19,7 @@ var ariaWidgetsFormDatePickerStyle = require("./DatePickerStyle.tpl.css");
 var ariaWidgetsCalendarCalendarStyle = require("../calendar/CalendarStyle.tpl.css");
 var ariaWidgetsContainerDivStyle = require("../container/DivStyle.tpl.css");
 var ariaWidgetsFormDropDownTextInput = require("./DropDownTextInput");
+var ariaUtilsString = require("../../utils/String");
 
 /**
  * DatePicker widget, which is a template-based widget.
@@ -45,7 +46,17 @@ module.exports = Aria.classDefinition({
         if (cfg.referenceDate) {
             controller.setReferenceDate(new Date(cfg.referenceDate));
         }
-        this._dropDownIconFocus = false;
+        this._calendarFocus = false;
+
+        var iconTooltip = cfg.iconTooltip ? ' title="' + ariaUtilsString.escapeForHTML(cfg.iconTooltip) + '"' : '';
+        this._iconsAttributes = {
+            // unselectable is necessary on IE so that, on mouse down, there is no blur of the active element
+            // (preventing the default action on mouse down does not help on IE)
+            "dropdown": 'unselectable="on"' + iconTooltip
+        };
+        if (cfg.waiAria) {
+            this._iconsAttributes.dropdown += ' role="button" aria-expanded="false" aria-haspopup="true"';
+        }
     },
     $destructor : function () {
         this._dropDownIcon = null;
@@ -61,18 +72,16 @@ module.exports = Aria.classDefinition({
 
         /**
          * Handle events raised by the frame
-         * @protected
          * @param {Object} evt
+         * @override
          */
         _frame_events : function (evt) {
-
-            if (evt.name === "iconFocus" && evt.iconName == "dropdown" && !this._cfg.disabled) {
-                this._dropDownIconFocus = true;
+            if (evt.name == "iconMouseDown" && evt.iconName == "dropdown" && !this._cfg.disabled) {
+                evt.event.preventDefault(true);
+            } else if (evt.name == "iconClick" && evt.iconName == "dropdown" && !this._cfg.disabled) {
+                this._toggleDropdown();
+                evt.event.preventDefault(true);
             }
-            if (evt.name === "iconBlur" && evt.iconName == "dropdown" && !this._cfg.disabled) {
-                this._dropDownIconFocus = false;
-            }
-            this.$DropDownTextInput._frame_events.call(this, evt);
         },
 
         /**
@@ -103,7 +112,7 @@ module.exports = Aria.classDefinition({
          * @param {Number} end
          */
         setCaretPosition : function (start, end) {
-            if (this._dropDownIconFocus) {
+            if (this._calendarFocus) {
                 this._currentCaretPosition = {
                     start : start,
                     end : end
@@ -118,7 +127,7 @@ module.exports = Aria.classDefinition({
          * @return {Object} the caret position (start end end)
          */
         getCaretPosition : function () {
-            if (this._dropDownIconFocus) {
+            if (this._calendarFocus) {
                 var currentCaretPosition = this._currentCaretPosition;
                 if (currentCaretPosition) {
                     return currentCaretPosition;
@@ -137,19 +146,23 @@ module.exports = Aria.classDefinition({
          * @override
          */
         focus : function () {
+            // By default, keepFocus is false, unless it is set to true later:
+            this._keepFocus = false;
             if (this._dropdownPopup) {
-                if (this._hasFocus && !this._dropDownIconFocus) {
+                var calendarFocus = this._calendarFocus;
+
+                if (this._hasFocus && !calendarFocus) {
                     // passing the focus from the text field to the icon
                     this._keepFocus = true;
                 }
                 // override the focus method so that calling focus on the DatePicker while it is open
                 // actually focuses the dropdown icon
                 // focusing the DatePicker while the popup is open means focusing the dropdown icon
-                if (!this._dropDownIconFocus) {
-                    this._dropDownIcon.focus();
+                if (!calendarFocus) {
+                    this.controller.getCalendar().focus();
                 }
             } else {
-                if (this._hasFocus && this._dropDownIconFocus) {
+                if (this._hasFocus && this._calendarFocus) {
                     // passing the focus from the icon to the text field
                     this._keepFocus = true;
                 }
@@ -163,8 +176,27 @@ module.exports = Aria.classDefinition({
          */
         _dom_onclick : function () {
             this.$DropDownTextInput._dom_onclick.call(this);
-            if (!this._dropDownIconFocus) {
+            if (!this._calendarFocus) {
                 // clicking on the field while the popup is visible should close it
+                this._closeDropdown();
+            }
+        },
+
+        /**
+         * DOM callback function called when the focus is put on the input. The onFocus event is available on the input
+         * that sits inside a span. In this function, we change the background on the parent span node, and also the
+         * second span that has the end of the input.
+         * @param {aria.DomEvent} event Focus event
+         * @protected
+         */
+        _dom_onfocus : function (event) {
+            this.$DropDownTextInput._dom_onfocus.apply(this, arguments);
+            this._keepFocus = false;
+        },
+
+        _dom_onblur : function (event) {
+            this.$DropDownTextInput._dom_onblur.apply(this, arguments);
+            if (!this._keepFocus) {
                 this._closeDropdown();
             }
         },
@@ -199,11 +231,30 @@ module.exports = Aria.classDefinition({
                 tabIndex : -1,
                 label : cfg.calendarLabel,
                 defaultTemplate : cfg.calendarTemplate,
+                waiAria: cfg.waiAria,
+                waiAriaDateFormat: cfg.waiAriaDateFormat,
+                waiAriaLabel: cfg.waiAriaCalendarLabel,
                 minValue : cfg.minValue,
                 maxValue : cfg.maxValue,
                 onclick : {
                     fn : this._clickOnDate,
                     scope : this
+                },
+                onkeydown : {
+                    fn: this._calendar_onkeydown,
+                    scope : this
+                },
+                onmousedown : {
+                    fn: this._calendar_onmousedown,
+                    scope: this
+                },
+                onfocus : {
+                    fn: this._calendar_onfocus,
+                    scope: this
+                },
+                onblur : {
+                    fn: this._calendar_onblur,
+                    scope: this
                 },
                 bind : {
                     "value" : {
@@ -231,11 +282,59 @@ module.exports = Aria.classDefinition({
             calendar.writeMarkup(out);
         },
 
-        _closeDropdown : function () {
-            if (this._dropdownPopup) {
-                this.$DropDownTextInput._closeDropdown.call(this);
-                this.focus(null, true);
+        _calendar_onkeydown: function (domEvtWrapper) {
+            if (domEvtWrapper.keyCode === 32) {
+                domEvtWrapper.charCode = 32;
             }
+            this._handleKey(domEvtWrapper);
+        },
+
+        _calendar_onmousedown : function (domEvtWrapper) {
+            domEvtWrapper.preventDefault(true);
+            domEvtWrapper.target.setProperty("unselectable", "on");
+        },
+
+        _calendar_onfocus: function () {
+            this._calendarFocus = true;
+            this._dom_onfocus();
+        },
+
+        _calendar_onblur: function () {
+            this._dom_onblur();
+            this._calendarFocus = false;
+        },
+
+        /**
+         * Internal method called when the popup should be either closed or opened depending on the state of the
+         * controller and whether it is currently opened or closed. In any case, keep the focus on the field. Called by
+         * the widget button for example.
+         * @override
+         */
+        _toggleDropdown : function () {
+            // toggleDropdown should not make the virtual keyboard appear on touch devices
+            this._updateFocusNoKeyboard();
+            var report = this.controller.toggleDropdown(this.getTextInputField().value, this._dropdownPopup != null);
+            this._reactToControllerReport(report, {
+                hasFocus : true
+            });
+        },
+
+        /**
+         * Callback for the event onAfterOpen raised by the popup.
+         * @override
+         */
+        _afterDropdownOpen : function () {
+            if (this._cfg.waiAria) {
+                // it is important to set aria-owns and aria-expanded attributes before
+                // calling the parent _afterDropdownOpen method (which gives focus to
+                // the calendar)
+                var dropDownIcon = this._dropDownIcon;
+                var calendarId = this.controller.getCalendar().getCalendarDomId();
+                dropDownIcon.setAttribute("aria-owns", calendarId);
+                dropDownIcon.setAttribute("aria-activedescendant", calendarId);
+                dropDownIcon.setAttribute("aria-expanded", "true");
+            }
+            this.$DropDownTextInput._afterDropdownOpen.apply(this, arguments);
         },
 
         _refreshPopup : function () {
@@ -245,6 +344,13 @@ module.exports = Aria.classDefinition({
         },
 
         _afterDropdownClose : function () {
+            this._calendarFocus = false;
+            var dropDownIcon = this._dropDownIcon;
+            if (this._cfg.waiAria && dropDownIcon) {
+                dropDownIcon.removeAttribute("aria-owns");
+                dropDownIcon.removeAttribute("aria-activedescendant");
+                dropDownIcon.setAttribute("aria-expanded", "false");
+            }
             this.$DropDownTextInput._afterDropdownClose.call(this);
             this.controller.setCalendar(null);
         },
