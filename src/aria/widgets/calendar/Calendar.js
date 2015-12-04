@@ -199,6 +199,7 @@ module.exports = Aria.classDefinition({
         _tplLoadCallback : function (args) {
             this.$TemplateBasedWidget._tplLoadCallback.call(this, args);
             if (args.success) {
+                this._updateAriaActiveDescendant();
                 this._focusUpdate();
             }
         },

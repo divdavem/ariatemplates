@@ -14,7 +14,7 @@
  */
 
 {Template {
-    $classpath : "test.aria.widgets.wai.datePicker.DatePickerTpl"
+    $classpath : "test.aria.widgets.wai.datePicker.DatePickerTestTpl"
 }}
     {macro main()}
         <div style="margin:10px;font-size:+3;font-weight:bold;">DatePicker accessibility sample</div>
@@ -34,7 +34,13 @@
             iconTooltip: "Display calendar",
             waiAria: waiAria,
             waiAriaCalendarLabel: "Calendar table. Use arrow keys to navigate and space to validate.",
-            waiAriaDateFormat: "EEEE d MMMM yyyy"
+            waiAriaDateFormat: "EEEE d MMMM yyyy",
+            bind: {
+                value: {
+                    to: id + "Value",
+                    inside: data
+                }
+            }
         }/} <br><br>
         <label>Next field <input></label> <br><br>
     {/macro}
