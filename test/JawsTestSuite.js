@@ -23,5 +23,6 @@ Aria.classDefinition({
         this.$TestSuite.constructor.call(this);
 
         this.addTests("test.aria.widgets.wai.datePicker.DatePickerJawsTest1");
+        this.addTests("test.aria.widgets.wai.datePicker.DatePickerJawsTest2");
     }
 });
