@@ -278,7 +278,7 @@ module.exports = Aria.classDefinition({
                     };
 
                     var newValue = this._transform(bind.transform, bind.inside[bind.to], "toWidget");
-                    this._cfg[property] = newValue;
+                    this.setWidgetProperty(property, newValue);
                 } catch (ex) {
                     this.$logError(this.INVALID_BEAN, [property, "bind"]);
                 }

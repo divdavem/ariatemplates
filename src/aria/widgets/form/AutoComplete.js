@@ -16,6 +16,8 @@ var Aria = require("../../Aria");
 var ariaWidgetsFormDropDownListTrait = require("./DropDownListTrait");
 var ariaWidgetsControllersAutoCompleteController = require("../controllers/AutoCompleteController");
 var ariaUtilsEvent = require("../../utils/Event");
+var ariaUtilsJson = require("../../utils/Json");
+var ariaUtilsString = require("../../utils/String");
 var ariaWidgetsFormAutoCompleteStyle = require("./AutoCompleteStyle.tpl.css");
 var ariaWidgetsFormListListStyle = require("./list/ListStyle.tpl.css");
 var ariaWidgetsContainerDivStyle = require("../container/DivStyle.tpl.css");
@@ -83,10 +85,18 @@ module.exports = Aria.classDefinition({
         this._freePopupWidth = false;
 
         if (cfg.waiAria) {
-            this._extraInputAttributes += ' aria-expanded="false" role="combobox" aria-autocomplete="list"';
+            //this._extraInputAttributes += ' aria-expanded="false" role="combobox" aria-autocomplete="list"';
         }
+
+        this._waiSuggestionsStatus = {
+            suggestions: 0,
+            text: ""
+        };
+        this._waiSuggestionsChangedListener = null;
     },
     $destructor : function () {
+        this._removeWaiSuggestionsChangedListener();
+
         // The dropdown might still be open when we destroy the widget, destroy it now
         if (this._dropdownPopup) {
             this._dropdownPopup.$removeListeners({
@@ -256,8 +266,73 @@ module.exports = Aria.classDefinition({
             if (this._cfg.waiAria) {
                 var field = this.getTextInputField();
                 field.setAttribute("aria-owns", this.controller.getListWidget().getListDomId());
-                field.setAttribute("aria-expanded", "true");
-                this._updateAriaActiveDescendant();
+                //field.setAttribute("aria-expanded", "true");
+                this._addWaiSuggestionsChangedListener();
+                this._waiSuggestionsChanged();
+            }
+        },
+
+        _addWaiSuggestionsChangedListener : function () {
+            var callback = this._waiSuggestionsChangedListener;
+            if (!callback) {
+                callback = this._waiSuggestionsChangedListener = {
+                    scope: this,
+                    fn: this._waiSuggestionsChanged
+                };
+                ariaUtilsJson.addListener(this.controller.getDataModel(), "listContent", callback);
+            }
+        },
+
+        _removeWaiSuggestionsChangedListener : function () {
+            var callback = this._waiSuggestionsChangedListener;
+            if (callback) {
+                ariaUtilsJson.removeListener(this.controller.getDataModel(), "listContent", callback);
+                this._waiSuggestionsChangedListener = null;
+            }
+        },
+
+        _computeWaiSuggestionsStatus : function () {
+            // FIXME: do not hard-code messages in this function (make them configurable)
+            var dataModel = this.controller.getDataModel();
+            var suggestionsList = dataModel.listContent;
+            var value = dataModel.value;
+            var text = dataModel.text;
+            var noSuggestionStatus = (!this._dropdownPopup || suggestionsList.length === 0) &&
+                    (this._waiSuggestionsStatus.suggestions === 0 || (value && value !== text))
+            if (noSuggestionStatus) {
+                return {
+                    suggestions: 0,
+                    text: ""
+                };
+            }
+            return {
+                suggestions: suggestionsList.length,
+                text: (function (number) {
+                    if (number === 0) {
+                        return "There is no suggestion.";
+                    } else {
+                        return (number == 1 ? "There is one suggestion" : "There are " + number + " suggestions") + ", use up and down arrow keys to navigate.";
+                    }
+                })(suggestionsList.length)
+            };
+        },
+
+        _waiSuggestionsChanged : function () {
+            var waiSuggestionsStatus = this._computeWaiSuggestionsStatus();
+            // only update something if the status changed
+            if (waiSuggestionsStatus.text !== this._waiSuggestionsStatus.text) {
+                this._waiSuggestionsStatus = waiSuggestionsStatus;
+                var waiSuggestionsStatusDomElt = this._waiSuggestionsStatusDomElt;
+                if (!waiSuggestionsStatusDomElt) {
+                    waiSuggestionsStatusDomElt = this._waiSuggestionsStatusDomElt = Aria.$window.document.createElement("span");
+                    waiSuggestionsStatusDomElt.className = "xSROnly";
+                    waiSuggestionsStatusDomElt.setAttribute("role", "status");
+                    waiSuggestionsStatusDomElt.setAttribute("aria-live", "assertive");
+                    waiSuggestionsStatusDomElt.setAttribute("aria-atomic", "true");
+                    waiSuggestionsStatusDomElt.setAttribute("aria-relevant", "text");
+                    this.getDom().appendChild(waiSuggestionsStatusDomElt);
+                }
+                waiSuggestionsStatusDomElt.innerHTML = ariaUtilsString.escapeHTML(waiSuggestionsStatus.text);
             }
         },
 
@@ -269,10 +344,11 @@ module.exports = Aria.classDefinition({
             if (this._cfg.waiAria) {
                 var field = this.getTextInputField();
                 field.removeAttribute("aria-activedescendant");
-                field.setAttribute("aria-expanded", "false");
+                //field.setAttribute("aria-expanded", "false");
                 field.removeAttribute("aria-owns");
             }
             this.$DropDownListTrait._afterDropdownClose.apply(this, arguments);
+            this._waiSuggestionsChanged();
         },
 
         /**
