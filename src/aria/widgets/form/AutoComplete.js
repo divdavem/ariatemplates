@@ -18,11 +18,17 @@ var ariaWidgetsControllersAutoCompleteController = require("../controllers/AutoC
 var ariaUtilsEvent = require("../../utils/Event");
 var ariaUtilsJson = require("../../utils/Json");
 var ariaUtilsString = require("../../utils/String");
+var ariaUtilsFunction = require("../../utils/Function");
 var ariaWidgetsFormAutoCompleteStyle = require("./AutoCompleteStyle.tpl.css");
 var ariaWidgetsFormListListStyle = require("./list/ListStyle.tpl.css");
 var ariaWidgetsContainerDivStyle = require("../container/DivStyle.tpl.css");
 var ariaWidgetsFormDropDownTextInput = require("./DropDownTextInput");
 var ariaCoreBrowser = require("../../core/Browser");
+
+var emptyWaiSuggestionsStatus = {
+    number: 0,
+    text: ""
+};
 
 /**
  * AutoComplete widget
@@ -75,6 +81,9 @@ module.exports = Aria.classDefinition({
         controllerInstance.expandButton = cfg.expandButton;
         controllerInstance.selectionKeys = cfg.selectionKeys;
         controllerInstance.preselect = cfg.preselect;
+        if (cfg.waiAria && cfg.waiSuggestionAriaLabelGetter) {
+            controllerInstance.waiSuggestionAriaLabelGetter = ariaUtilsFunction.bind(this._waiSuggestionAriaLabelGetter, this);
+        }
 
         /**
          * Whether the width of the popup can be smaller than the field, when configured to be so. If false, the
@@ -84,18 +93,13 @@ module.exports = Aria.classDefinition({
          */
         this._freePopupWidth = false;
 
-        if (cfg.waiAria) {
-            //this._extraInputAttributes += ' aria-expanded="false" role="combobox" aria-autocomplete="list"';
-        }
-
-        this._waiSuggestionsStatus = {
-            suggestions: 0,
-            text: ""
-        };
+        this._waiSuggestionsStatus = emptyWaiSuggestionsStatus;
         this._waiSuggestionsChangedListener = null;
+        this._waiSuggestionsStatusDomElt = null;
     },
     $destructor : function () {
         this._removeWaiSuggestionsChangedListener();
+        this._waiSuggestionsStatusDomElt = null;
 
         // The dropdown might still be open when we destroy the widget, destroy it now
         if (this._dropdownPopup) {
@@ -266,7 +270,6 @@ module.exports = Aria.classDefinition({
             if (this._cfg.waiAria) {
                 var field = this.getTextInputField();
                 field.setAttribute("aria-owns", this.controller.getListWidget().getListDomId());
-                //field.setAttribute("aria-expanded", "true");
                 this._addWaiSuggestionsChangedListener();
                 this._waiSuggestionsChanged();
             }
@@ -292,29 +295,18 @@ module.exports = Aria.classDefinition({
         },
 
         _computeWaiSuggestionsStatus : function () {
-            // FIXME: do not hard-code messages in this function (make them configurable)
-            var dataModel = this.controller.getDataModel();
-            var suggestionsList = dataModel.listContent;
-            var value = dataModel.value;
-            var text = dataModel.text;
-            var noSuggestionStatus = (!this._dropdownPopup || suggestionsList.length === 0) &&
-                    (this._waiSuggestionsStatus.suggestions === 0 || (value && value !== text))
-            if (noSuggestionStatus) {
+            var dm = this.controller.getDataModel();
+            var suggestionsList = dm.listContent;
+            var popupDisplayed = this._dropdownPopup && suggestionsList.length > 0;
+            var justClosedPopup = !popupDisplayed && (dm.value == null || dm.value === dm.text) && this._waiSuggestionsStatus.number > 0;
+            var waiSuggestionsStatusGetter = this._cfg.waiSuggestionsStatusGetter;
+            if (waiSuggestionsStatusGetter && (popupDisplayed || justClosedPopup)) {
                 return {
-                    suggestions: 0,
-                    text: ""
+                    number: suggestionsList.length,
+                    text: this.evalCallback(waiSuggestionsStatusGetter, suggestionsList.length)
                 };
             }
-            return {
-                suggestions: suggestionsList.length,
-                text: (function (number) {
-                    if (number === 0) {
-                        return "There is no suggestion.";
-                    } else {
-                        return (number == 1 ? "There is one suggestion" : "There are " + number + " suggestions") + ", use up and down arrow keys to navigate.";
-                    }
-                })(suggestionsList.length)
-            };
+            return emptyWaiSuggestionsStatus;
         },
 
         _waiSuggestionsChanged : function () {
@@ -336,6 +328,10 @@ module.exports = Aria.classDefinition({
             }
         },
 
+        _waiSuggestionAriaLabelGetter : function (param) {
+            return this.evalCallback(this._cfg.waiSuggestionAriaLabelGetter, param);
+        },
+
         /**
          * Called after the dropdown is closed.
          * @override
@@ -344,7 +340,6 @@ module.exports = Aria.classDefinition({
             if (this._cfg.waiAria) {
                 var field = this.getTextInputField();
                 field.removeAttribute("aria-activedescendant");
-                //field.setAttribute("aria-expanded", "false");
                 field.removeAttribute("aria-owns");
             }
             this.$DropDownListTrait._afterDropdownClose.apply(this, arguments);
