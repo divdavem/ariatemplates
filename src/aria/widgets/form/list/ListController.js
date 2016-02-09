@@ -114,15 +114,16 @@ module.exports = Aria.classDefinition({
         /**
          * Return the item that should be preselected depending on the navigation event
          * @param {Integer} selectedIdx selected option index
+         * @param {Array} selectedValues selected options values
          * @protected
          * @return {Integer} Item position or null if nothing should be preselected
          */
-        _checkPreselect : function (selectedIdx) {
+        _checkPreselect : function (selectedIdx, selectedValues) {
             if (!this._navigationEvent) { // will not override any selections using arrow keys or mouse over
                 if (this._data.preselect === "none") {
                     return null;
                 } else if (this._data.preselect === "always") {
-                    if (selectedIdx === -1 || selectedIdx === undefined) {
+                    if (selectedIdx === -1 || (selectedIdx === undefined && (!selectedValues || selectedValues.length < 1))) {
                         selectedIdx = 0;
                     }
                     return selectedIdx;
@@ -385,7 +386,7 @@ module.exports = Aria.classDefinition({
          */
         _mergeItemsAndSelectionInfo : function (items, selectedValues, selectedIdx) {
             var arrayUtil = ariaUtilsArray;
-            var preselect = this._checkPreselect(selectedIdx);
+            var preselect = this._checkPreselect(selectedIdx, selectedValues);
             selectedIdx = (preselect === undefined) ? selectedIdx : preselect;
             var maxSelectedCount = this._getTrueMaxSelectedCount(items);
             var pbMaxSelected = false; // true if the number of selected values is greater than maxSelectedCount
