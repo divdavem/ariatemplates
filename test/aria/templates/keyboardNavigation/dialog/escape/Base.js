@@ -149,8 +149,10 @@ module.exports = Aria.classDefinition({
                 add('_openDialog');
                 add('_openDropdown', id);
 
+                add('_delay');
                 add('_pressEscape');
-                add(isOpened.waitForTrue);
+                add('_delay');
+                add(isOpened.assertTrue);
 
                 add('_pressEscape');
                 add(isOpened.waitForFalse);
