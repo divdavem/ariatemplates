@@ -138,7 +138,7 @@ module.exports = Aria.classDefinition({
                         response = filterFn(response);
                     }
 
-                    this.assertEquals(response, expectedOutput, "JAWS history: " + ariaUtilsJson.convertToJsonString(response));
+                    this.assertEquals(response, expectedOutput, "JAWS history: " + ariaUtilsJson.convertToJsonString(response) + ", expected: " + ariaUtilsJson.convertToJsonString(expectedOutput));
                     this.$callback(callback);
                 },
                 scope: this

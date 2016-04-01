@@ -91,7 +91,7 @@ module.exports = Aria.classDefinition({
 
                 function selectStartPoint() {
                     step(['click', self.getElementById(group.elementBeforeId)]);
-                    entry('Element before ' + group.id + ' Link');
+                    entry('Element before ' + group.id);
                 }
 
                 function getSelectedTabDescription(tab) {
