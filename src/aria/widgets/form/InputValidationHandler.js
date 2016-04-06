@@ -114,10 +114,19 @@ module.exports = Aria.classDefinition({
                 width : 289,
                 margins : "0 0 0 0"
             }, this._context);
+
+            var msg = this._checkErrorMessage(errorMessage);
+            if (this._WidgetCfg.waiAria) {
+                div.addExtraAttributes('aria-hidden="true"');
+                this._waiInputMessage(msg);
+            }
+
             out.registerBehavior(div);
             div.writeMarkupBegin(out);
-            out.write(this._checkErrorMessage(errorMessage));
+            out.write(msg);
             div.writeMarkupEnd(out);
+
+
             this._div = div;
         },
 
@@ -153,9 +162,33 @@ module.exports = Aria.classDefinition({
                 preferredPositions : this._getPreferredPositions(),
                 closeOnMouseClick : true,
                 closeOnMouseScroll : false,
-                role: "alert",
                 waiAria: this._WidgetCfg.waiAria
             });
+
+        },
+
+        _waiInputMessage : function (msg) {
+            var waiInputMessageDomElt = this._waiInputMessageDomElt;
+            if (!waiInputMessageDomElt) {
+                waiInputMessageDomElt = this._waiInputMessageDomElt = Aria.$window.document.createElement("span");
+                waiInputMessageDomElt.className = "xSROnly";
+                waiInputMessageDomElt.setAttribute("role", "status");
+                waiInputMessageDomElt.setAttribute("aria-live", "assertive");
+                waiInputMessageDomElt.setAttribute("aria-relevant", "additions");
+                this._field.appendChild(waiInputMessageDomElt);
+            }
+            if (msg) {
+                var document = Aria.$window.document;
+                var textChild = document.createElement("span");
+                var textNode = document.createTextNode(msg);
+                textChild.appendChild(textNode);
+                waiInputMessageDomElt.appendChild(textChild);
+                setTimeout(function () {
+                    // remove the node after 10ms
+                    textChild.parentNode.removeChild(textChild);
+                    textChild = null;
+                }, 10);
+            }
         },
 
         /**

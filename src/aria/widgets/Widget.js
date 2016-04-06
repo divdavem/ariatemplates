@@ -643,6 +643,14 @@ module.exports = Aria.classDefinition({
         },
 
         /**
+         * Add extra attributes on the dom widget
+         * @param {String} extraAttribute The string to add on the dom, which is appended on the previous one.
+         */
+        addExtraAttributes : function (extraAttribute) {
+            this._extraAttributes += " " + extraAttribute;
+        },
+
+        /**
          * Called when a change occurs for a value with binding.
          * @protected
          * @param {Object} args details about what changed
