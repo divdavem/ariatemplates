@@ -24,6 +24,7 @@ var ariaTemplatesLayout = require("../../templates/Layout");
 module.exports = Aria.classDefinition({
     $classpath : "aria.widgets.form.InputValidationHandler",
     $constructor : function (widget) {
+        this._widget = widget;
         this._context = widget._context;
         this._lineNumber = widget._lineNumber;
         this._field = widget.getValidationPopupReference();
@@ -73,6 +74,7 @@ module.exports = Aria.classDefinition({
         this._context = null;
         this._field = null;
         this._WidgetCfg = null;
+        this._widget = null;
         this._validationPopup = null;
     },
     $prototype : {
@@ -118,7 +120,7 @@ module.exports = Aria.classDefinition({
             var msg = this._checkErrorMessage(errorMessage);
             if (this._WidgetCfg.waiAria) {
                 div.addExtraAttributes('aria-hidden="true"');
-                this._waiInputMessage(msg);
+                this._widget.waiReadText(msg);
             }
 
             out.registerBehavior(div);
@@ -165,30 +167,6 @@ module.exports = Aria.classDefinition({
                 waiAria: this._WidgetCfg.waiAria
             });
 
-        },
-
-        _waiInputMessage : function (msg) {
-            var waiInputMessageDomElt = this._waiInputMessageDomElt;
-            if (!waiInputMessageDomElt) {
-                waiInputMessageDomElt = this._waiInputMessageDomElt = Aria.$window.document.createElement("span");
-                waiInputMessageDomElt.className = "xSROnly";
-                waiInputMessageDomElt.setAttribute("role", "status");
-                waiInputMessageDomElt.setAttribute("aria-live", "assertive");
-                waiInputMessageDomElt.setAttribute("aria-relevant", "additions");
-                this._field.appendChild(waiInputMessageDomElt);
-            }
-            if (msg) {
-                var document = Aria.$window.document;
-                var textChild = document.createElement("span");
-                var textNode = document.createTextNode(msg);
-                textChild.appendChild(textNode);
-                waiInputMessageDomElt.appendChild(textChild);
-                setTimeout(function () {
-                    // remove the node after 10ms
-                    textChild.parentNode.removeChild(textChild);
-                    textChild = null;
-                }, 10);
-            }
         },
 
         /**

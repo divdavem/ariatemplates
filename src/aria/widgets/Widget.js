@@ -782,6 +782,27 @@ module.exports = Aria.classDefinition({
                 ariaUtilsDelegate.remove(this._delegateId);
                 delete this._delegateId;
             }
+        },
+
+        waiReadText : function (text) {
+            if (this._cfg && this._cfg.waiAria && text) {
+                var document = Aria.$window.document;
+                var waiReadTextElt = document.createElement("span");
+                waiReadTextElt.className = "xSROnly";
+                waiReadTextElt.setAttribute("role", "status");
+                waiReadTextElt.setAttribute("aria-live", "assertive");
+                waiReadTextElt.setAttribute("aria-relevant", "additions");
+                this.getDom().appendChild(waiReadTextElt);
+
+                var textChild = document.createElement("span");
+                var textNode = document.createTextNode(text);
+                textChild.appendChild(textNode);
+                waiReadTextElt.appendChild(textChild);
+                setTimeout(function () {
+                    // remove the node after 10ms
+                    waiReadTextElt.parentNode.removeChild(waiReadTextElt);
+                }, 10);
+            }
         }
     }
 });
