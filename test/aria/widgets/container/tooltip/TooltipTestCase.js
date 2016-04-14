@@ -19,7 +19,6 @@ Aria.classDefinition({
     $dependencies : ["aria.utils.Dom"],
     $constructor : function () {
         this.$RobotTestCase.constructor.call(this);
-
         this.setTestEnv({
             template : "test.aria.widgets.container.tooltip.InnerTemplate",
             iframe : true,
