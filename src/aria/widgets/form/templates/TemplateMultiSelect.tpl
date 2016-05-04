@@ -90,7 +90,7 @@
         {call renderCheckboxLabel(item)/}
         {@aria:CheckBox {
             label: checkboxLabel,
-            waiAria: data.cfg.waiAria,
+            waiAria: data.waiAria,
             waiLabelHidden: true,
             waiLabel: checkboxLabel,
             onchange: {

@@ -197,7 +197,6 @@ module.exports = Aria.classDefinition({
             var list = new ariaWidgetsFormListList({
                 defaultTemplate : cfg.listTemplate,
                 waiAria : cfg.waiAria,
-                role : "", // No role as it doesn't work well with JAWS in this case
                 block : true,
                 sclass : cfg.listSclass || this._skinObj.listSclass,
                 onchange : {

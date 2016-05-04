@@ -46,10 +46,6 @@ module.exports = Aria.classDefinition({
         divCfg.margins = "0 0 0 0";
 
         if (cfg.waiAria) {
-            if (cfg.role !== "") {
-                this._extraAttributes += ' role="' + (cfg.role || "listbox") + '" ';
-            }
-            cfg.numberOfColumns = 1;
             cfg.displayOptions.tableMode = false;
         }
 

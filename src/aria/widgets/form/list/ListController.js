@@ -499,10 +499,8 @@ module.exports = Aria.classDefinition({
         calcMoveFocus : function (flowOrientation, focusIndex, numberOfRows, numberOfColumns, keyCode, numberItems) {
 
             var moveFocus = focusIndex;
-            var cfg = this._data.cfg;
-            var waiAria = cfg && cfg.waiAria;
 
-            if (numberOfColumns == 1 || waiAria) {
+            if (numberOfColumns == 1) {
                 if (keyCode == ariaDomEvent.KC_ARROW_UP) {
                     moveFocus--;
                 }

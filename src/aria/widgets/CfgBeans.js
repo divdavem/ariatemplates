@@ -1805,10 +1805,6 @@ module.exports = Aria.beanDefinitions({
             $type : "ResizableWidgetCfg",
             $description : "Configuration for the List widget. ",
             $properties : {
-                "role" : {
-                    $type : "json:String",
-                    $description : "The aria role of the list. Used when waiAria is set to true."
-                },
                 "tabIndex" : {
                     $type : "WidgetCfg.tabIndex",
                     $default : 0
