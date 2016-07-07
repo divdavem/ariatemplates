@@ -287,10 +287,6 @@ module.exports = Aria.classDefinition({
 
             var inpEl = this.getDom().getElementsByTagName("input")[0];
             var selected = this._isChecked();
-            if (this._cfg.waiAria) {
-                // update the attributes for WAI
-                this._getFocusableElement().setAttribute('aria-disabled', this.getProperty("disabled"));
-            }
             if (inpEl != null) {
                 // "normal", "normalSelected", "focused", "focusedSelected", "disabled", "disabledSelected",
                 // "readonly",
