@@ -101,22 +101,22 @@ module.exports = Aria.classDefinition({
          * @param {aria.templates.MarkupWriter} out the writer Object to use to output markup
          */
         _inputMarkup : function (out) {
-            var cfg = this._cfg;
-            var name = this._inputName ? ' name="' + this._inputName + '"' : "";
-
-
             if (!this._skinObj.simpleHTML) {
                 this._icon.writeMarkup(out);
             }
+            out.write(this._getInputMarkup());
+        },
+
+        _getInputMarkup : function () {
+            var cfg = this._cfg;
+            var name = this._inputName ? ' name="' + this._inputName + '"' : "";
             var tabIndex = this._cfg.tabIndex;
             tabIndex = !cfg.disabled ? 'tabindex="' + this._calculateTabIndex() + '" ' : "";
-
-            out.write(['<input', cfg.disabled ? ' disabled' : '',
+            return ['<input', cfg.disabled ? ' disabled' : '',
                     this._skinObj.simpleHTML ? ' style="display:inline-block"' : ' class="xSROnly"',
                     (Aria.testMode || cfg.waiAria) ? ' id="' + this._domId + '_input"' : '',
                     this._isChecked() ? ' checked' : '', ' type="', cfg._inputType, '"', name, ' value="',
-                    cfg.value, '" ', tabIndex, this._getAriaLabelMarkup(), '/>'].join(''));
-
+                    cfg.value, '" ', tabIndex, this._getAriaLabelMarkup(), '/>'].join('');
         },
 
         /**
@@ -285,19 +285,25 @@ module.exports = Aria.classDefinition({
                 this._icon.changeIcon(this._getIconName(newState));
             }
 
-            var inpEl = this.getDom().getElementsByTagName("input")[0];
-            var selected = this._isChecked();
-            if (this._cfg.waiAria) {
-                // update the attributes for WAI
-                this._getFocusableElement().setAttribute('aria-disabled', this.getProperty("disabled"));
-            }
+            var inpEl = this._getFocusableElement();
             if (inpEl != null) {
-                // "normal", "normalSelected", "focused", "focusedSelected", "disabled", "disabledSelected",
-                // "readonly",
-                // "readonlySelected"
-                inpEl.checked = selected;
-                inpEl.value = selected ? "true" : "false";
-                inpEl.disabled = this.getProperty("disabled");
+                var waiAria = this._cfg.waiAria;
+                var selected = this._isChecked();
+                var disabled = this.getProperty("disabled");
+                if (!disabled || !waiAria) {
+                    inpEl.checked = selected;
+                    inpEl.value = selected ? "true" : "false";
+                    inpEl.disabled = disabled;
+                } else {
+                    // Jaws has some issues with disabled check boxes
+                    // re-generating the whole markup of the input is a work-around
+                    // (cf test.aria.widgets.wai.input.checkbox.CheckboxDisabledJawsTestCase)
+                    var markup = this._getInputMarkup();
+                    aria.utils.Dom.insertAdjacentHTML(inpEl, "afterEnd", markup);
+                    aria.utils.Dom.removeElement(inpEl);
+                    this._initializeFocusableElement();
+                    inpEl = this._getFocusableElement();
+                }
             }
 
             if (this._label != null) {
