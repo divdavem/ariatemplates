@@ -18,11 +18,38 @@
 
     {macro main()}
         <div style="margin:10px;font-size:+3;font-style:bold;">This test needs focus.</div>
+        <fieldset style="margin:10px;">
+            <legend>State of the checkboxes</legend>
+            {@aria:CheckBox {
+                waiAria : true,
+                label : "Checked",
+                labelWidth: 100,
+                bind: {
+                    value: {
+                        to: "checkboxChecked",
+                        inside: data
+                    }
+                }
+            }/}<br>
+            {@aria:CheckBox {
+                waiAria : true,
+                label : "Disabled",
+                labelWidth: 100,
+                bind: {
+                    value: {
+                        to: "checkboxDisabled",
+                        inside: data
+                    }
+                }
+            }/}
+        </fieldset>
+
         {@aria:TextField {
             id : "tf1",
             label : "First textfield",
             labelWidth: 100,
-            value: ""
+            value: "",
+            margins: "10 10 10 10"
         }/}
 
         {call checkBoxes("std") /}
@@ -32,7 +59,8 @@
             id : "tf2",
             label : "Last textfield",
             labelWidth: 100,
-            value: ""
+            value: "",
+            margins: "10 10 10 10"
         }/}
 
     {/macro}
@@ -45,6 +73,10 @@
                 labelWidth: 100,
                 sclass: sclass,
                 bind: {
+                    disabled: {
+                        to: "checkboxDisabled",
+                        inside: data
+                    },
                     value: {
                         to: "checkboxChecked",
                         inside: data
@@ -54,18 +86,8 @@
             {@aria:CheckBox {
                 waiAria : true,
                 label : sclass + " input 2",
-                labelWidth: 100,
-                sclass: sclass,
-                bind: {
-                    value: {
-                        to: "checkboxDisabled",
-                        inside: data
-                    }
-                }
-            }/}
-            {@aria:CheckBox {
-                waiAria : true,
-                label : sclass + " input 3",
+                waiLabelHidden: true,
+                waiLabel : sclass + " input 2",
                 labelWidth: 100,
                 sclass: sclass,
                 bind: {
@@ -76,31 +98,28 @@
                     value: {
                         to: "checkboxChecked",
                         inside: data
-                  }
-              }
+                    }
+                }
             }/}
-
-            <span class="xSROnly" id="${sclass+"input4Label"}" aria-hidden="true">${sclass} input 4</span>
+            <span class="xSROnly" id="${sclass+"input3Label"}" aria-hidden="true">${sclass} input 3</span>
             {@aria:CheckBox {
                 waiAria : true,
-                label: sclass + " input 4",
+                label: sclass + " input 3",
                 waiLabelHidden: true,
-                waiLabelledBy: sclass + "input4Label",
+                waiLabelledBy: sclass + "input3Label",
                 labelWidth: 100,
                 sclass: sclass,
-                disabled: true,
-                value: true
+                bind: {
+                    disabled: {
+                        to: "checkboxDisabled",
+                        inside: data
+                    },
+                    value: {
+                        to: "checkboxChecked",
+                        inside: data
+                    }
+                }
             } /}
-
-            {@aria:CheckBox {
-                id: sclass+"Input5",
-                waiAria : true,
-                labelWidth: 100,
-                sclass: sclass,
-                disabled: true,
-                value: true
-            } /}
-            <span class="xSROnly" for="${sclass+"Input5"}_input">${sclass} input 5</span>
         </div>
     {/macro}
 
