@@ -43,5 +43,6 @@ module.exports = function (grunt) {
 
     require('./build/grunt-config/config-checkStyle')(grunt);
     require('./build/grunt-config/config-atpackager-bootstrap')(grunt);
+    require('./build/grunt-config/config-checkUnusedFiles')(grunt);
     require('./build/grunt-config/config-extra')(grunt);
 };
