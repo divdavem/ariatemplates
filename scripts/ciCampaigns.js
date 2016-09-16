@@ -48,9 +48,12 @@ process.on("exit", function () {
     robotServerProcess.kill();
 });
 
+var phantomjsPath = require("phantomjs-prebuilt").path;
+console.log("PhantomJS path: " + phantomjsPath);
 var options = {
     "colors": true,
     "env": attester.config.readFile("package.json"),
+    "phantomjs-path": phantomjsPath,
     "phantomjs-instances": 0,
     "launcher-config": "test/ciLauncher.yml"
 };

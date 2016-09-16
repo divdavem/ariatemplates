@@ -46,6 +46,7 @@
     "jade": "1.1.5",
     "mocha": "2.3.3",
     "robot-server": "0.0.4",
+    "phantomjs-prebuilt": "2.1.12",
     "ua-parser-js": "git+https://github.com/ariatemplates/ua-parser-js#latest"
   }
 }
