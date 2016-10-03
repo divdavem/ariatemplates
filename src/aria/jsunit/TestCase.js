@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 var Aria = require("../Aria");
+var ariaCoreIO = require("../core/IO");
 var ariaCoreSequencer = require("../core/Sequencer");
 var ariaUtilsJson = require("../utils/Json");
 var ariaUtilsType = require("../utils/Type");
@@ -101,13 +102,13 @@ module.exports = Aria.classDefinition({
             return isFunction(proto[method]) && !ariaUtilsArray.contains(["setUp", "tearDown"], method);
         });
         this.__wrapTestMethods(methods);
-        this.__wrapAriaLoad();
+        this.__registerAriaCoreIO();
 
         /**
-         * Number of Aria.load pending to be completed before we can notify a test end
+         * Number of aria.core.IO.asyncRequest pending to be completed before we can notify a test end
          * @type {Number}
          */
-        this.__pendingAriaLoad = 0;
+        this.__pendingIOLoads = 0;
 
         /**
          * Actions that should be executed once __pendingAriaLoad reaches 0
@@ -116,7 +117,7 @@ module.exports = Aria.classDefinition({
         this.__pendingActions = [];
     },
     $destructor : function () {
-        this.__restoreAriaLoad();
+        this.__unregisterAriaCoreIO();
         // destructor
         if (this._sequencer) {
             this._sequencer.$dispose();
@@ -207,61 +208,43 @@ module.exports = Aria.classDefinition({
             }
         },
 
-        __wrapAriaLoad : function () {
-            var originalLoad = Aria.load;
-            var testCase = this;
-            Aria.load = function (description) {
-                testCase.__pendingAriaLoad += 1;
-
-                var userSuccess = description.oncomplete;
-                var userError = description.onerror;
-
-                description.oncomplete = {
-                    fn : testCase.__AriaLoadCallback,
-                    scope : testCase,
-                    args : userSuccess
-                };
-                description.onerror = {
-                    fn : testCase.__AriaLoadCallback,
-                    scope : testCase,
-                    args : userError,
-                    override : userError && userError.override
-                };
-
-                originalLoad.call(Aria, description);
+        __registerAriaCoreIO : function () {
+            var self = this;
+            var scope = {};
+            var finished = function () {
+                if (self.__pendingIOLoads < 1 && self.__pendingActions.length > 0) {
+                    while (self.__pendingActions.length > 0) {
+                        var action = self.__pendingActions.shift();
+                        action.fn.apply(this, action.args);
+                    }
+                }
             };
-            Aria.load.originalLoad = originalLoad;
-        },
-
-        __AriaLoadCallback : function (userCallback) {
-            this.__pendingAriaLoad -= 1;
-            // FIXME it would be nice to use this.$callback but Aria.load has a different signature
-            // see http://ariatemplates.com/forum/showthread.php?tid=23
-            if (userCallback) {
-                if (typeof(userCallback) == 'function') {
-                    userCallback = {
-                        fn : userCallback
-                    };
+            ariaCoreIO.$on({
+                "request": {
+                    fn: function () {
+                        self.__pendingIOLoads++;
+                    },
+                    scope: scope
+                },
+                "response": {
+                    fn: function () {
+                        self.__pendingIOLoads--;
+                        if (self.__pendingIOLoads < 1) {
+                            setTimeout(finished, 0);
+                        }
+                    },
+                    scope: scope
                 }
-                var scope = (userCallback.scope) ? userCallback.scope : Aria;
-                // Didn't copy paste the try catch because we are already inside that try block
-                userCallback.fn.call(scope, userCallback.args);
-            }
-
-            if (this.__pendingAriaLoad < 1 && this.__pendingActions.length > 0) {
-                while (this.__pendingActions.length > 0) {
-                    var action = this.__pendingActions.shift();
-                    action.fn.apply(this, action.args);
-                }
-            }
+            });
+            this.__unregisterAriaCoreIO = function () {
+                ariaCoreIO.$unregisterListeners(scope);
+                self.__unregisterAriaCoreIO = Aria.empty;
+                scope = null;
+                self = null;
+            };
         },
 
-        __restoreAriaLoad : function () {
-            var originalLoad = Aria.load.originalLoad;
-            if (originalLoad) {
-                Aria.load = originalLoad;
-            }
-        },
+        __restoreAriaLoad : Aria.empty,
 
         /**
          * Conditional wait before calling the callback It takes only one json parameter
@@ -432,7 +415,7 @@ module.exports = Aria.classDefinition({
          * @param {Boolean} asyncTest tells if test was asynchronous [optional - default: true]
          */
         notifyTestEnd : function (testName, terminate, asyncTest) {
-            if (this.__pendingAriaLoad > 0) {
+            if (this.__pendingIOLoads > 0) {
                 this.__pendingActions.push({
                     fn : this.notifyTestEnd,
                     args : [testName, terminate, asyncTest]
