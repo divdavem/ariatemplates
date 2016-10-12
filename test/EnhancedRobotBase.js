@@ -321,12 +321,12 @@ var prototype = {
     ////////////////////////////////////////////////////////////////////////////
 
     _focusElement : function (callback, id) {
-        var element = this.getElementById(id);
+        var element = id.tagName ? id : this.getElementById(id);
 
         this._localAsyncSequence(function (add) {
             add('_delay');
             add('_click', element);
-            add('_waitForElementFocus', id);
+            add('_waitForElementFocus', element);
         }, callback);
     },
 
@@ -343,7 +343,7 @@ var prototype = {
     },
 
     _waitForElementFocus : function (callback, id) {
-        var element = this.getElementById(id);
+        var element = id.tagName ? id : this.getElementById(id);
         this._waitForFocus(callback, element);
     },
 
