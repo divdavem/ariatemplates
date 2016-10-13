@@ -10,5 +10,5 @@ function extractDisplay() {
     done
 }
 export DISPLAY="$(extractDisplay "$@")"
-echo "Running: DISPLAY=$DISPLAY firefox $@"
-exec firefox "$@"
+echo "Running: DISPLAY=$DISPLAY firefox $@" > /tmp/logStartBrowser
+exec firefox "$@" 2>&1 > /tmp/logStartBrowser
