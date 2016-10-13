@@ -1,15 +1,7 @@
-launchers:
-    localWebdriver:
-        $launcher: $webdriver
-        $maxInstances: 1
-        $urlExtraParameters: plugin=http://127.0.0.1:7778/robot
 browsers:
-    PhantomJS:
-        $launcher: $phantomjs
-        $maxInstances: 4
-    Firefox:
-        $launcher: localWebdriver
+    Firefox 49:
+        $launcher: $webdriver
+        $urlExtraParameters: plugin=http://127.0.0.1:7771/robot
+        $maxInstances: 1
         capabilities:
             browserName: firefox
-maxInstances:
-    Launcher_localWebdriver: 1

@@ -1,0 +1,36 @@
+launchers:
+    baseFirefox:
+        $launcher: $webdriver
+        $maxInstances: 1
+        capabilities:
+            browserName: firefox
+browsers:
+    Firefox 49:
+        - $launcher: baseFirefox
+          $urlExtraParameters: plugin=http://127.0.0.1:7771/robot
+          capabilities:
+              moz:firefoxOptions:
+                  args:
+                      - --display
+                      - :1.0
+        - $launcher: baseFirefox
+          $urlExtraParameters: plugin=http://127.0.0.1:7772/robot
+          capabilities:
+              moz:firefoxOptions:
+                  args:
+                      - --display
+                      - :2.0
+        - $launcher: baseFirefox
+          $urlExtraParameters: plugin=http://127.0.0.1:7773/robot
+          capabilities:
+              moz:firefoxOptions:
+                  args:
+                      - --display
+                      - :3.0
+        - $launcher: baseFirefox
+          $urlExtraParameters: plugin=http://127.0.0.1:7774/robot
+          capabilities:
+              moz:firefoxOptions:
+                  args:
+                      - --display
+                      - :4.0

@@ -17,42 +17,59 @@ var attester = require("attester");
 var testConfigBuilder = require("../test/testConfigBuilder");
 var robotServer = require("robot-server");
 var travis = process.env.TRAVIS === "true";
+var browsers = ["Firefox 49"];
 
 var campaigns = [
     testConfigBuilder.buildTestConfig({
         campaign: "classic",
-        browsers: ["PhantomJS"],
-        phantomjs: true
+        browsers: browsers,
+        noFlash: true
     }),
     testConfigBuilder.buildTestConfig({
         campaign: "unpackaged",
-        browsers: ["PhantomJS"]
+        browsers: browsers
     }),
     testConfigBuilder.buildTestConfig({
         campaign: "testSkin",
-        browsers: ["PhantomJS"]
+        browsers: browsers
     }),
     testConfigBuilder.buildTestConfig({
         campaign: "flatSkin",
-        browsers: ["PhantomJS"]
-    }),
-    testConfigBuilder.buildTestConfig({
-        campaign: "nophantom",
-        noFlash: travis,
-        browsers: ["Firefox"]
+        browsers: browsers
     })
 ];
 
-var robotServerProcess = robotServer.exec();
+var processesToKill = [];
+
+if (travis) {
+    var startRobotServer = function (display) {
+        var robotServerProcess = robotServer.exec(["--port", String(7770 + display)], {
+            env: Object.assign({}, process.env, {
+                "DISPLAY": ":" + display + ".0"
+            })
+        });
+        processesToKill.push(robotServerProcess);
+    };
+
+    startRobotServer(1);
+    startRobotServer(2);
+    startRobotServer(3);
+    startRobotServer(4);
+} else {
+    processesToKill.push(robotServer.exec());
+}
+
 process.on("exit", function () {
-    robotServerProcess.kill();
+    processesToKill.forEach(function (proc) {
+        proc.kill();
+    });
 });
 
 var options = {
     "colors": true,
     "env": attester.config.readFile("package.json"),
     "phantomjs-instances": 0,
-    "launcher-config": "test/ciLauncher.yml"
+    "launcher-config": travis ? "test/travisLauncher.yml" : "test/ciLauncher.yml"
 };
 attester.config.set(options);
 campaigns.forEach(function (campaign, n) {
