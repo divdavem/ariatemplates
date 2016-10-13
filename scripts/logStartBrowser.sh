@@ -5,10 +5,8 @@ PIPE=/tmp/logStartBrowser
 mkfifo "$PIPE"
 
 function readPipe() {
-    while true; do
-        if read line <"$PIPE" ; then
-            echo "[LOG-START-BROWSER] $line"
-        fi
+    while read line <"$PIPE" ; do
+        echo "[LOG-START-BROWSER] $line"
     done
 }
 
