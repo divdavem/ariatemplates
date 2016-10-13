@@ -9,7 +9,7 @@ addons:
   firefox: "49.0"
 before_install:
 # Settings needed for graphic output in Firefox
-  - export DISPLAY=:1.0
+  - chmod +x scripts/firefoxRightDisplay.sh
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_2.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :2 -ac -screen 0 1280x1024x16
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_3.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :3 -ac -screen 0 1280x1024x16

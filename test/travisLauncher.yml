@@ -3,6 +3,8 @@ launchers:
         $launcher: $webdriver
         $maxInstances: 1
         capabilities:
+            moz:firefoxOptions:
+                binary: "<%= env.PWD %>/scripts/firefoxRightDisplay.sh"
             browserName: firefox
 browsers:
     Firefox 49:
