@@ -17,30 +17,38 @@ var attester = require("attester");
 var testConfigBuilder = require("../test/testConfigBuilder");
 var robotServer = require("robot-server");
 var travis = process.env.TRAVIS === "true";
+var appveyor = process.env.APPVEYOR === "True";
+var browsers;
+
+if (appveyor) {
+    browsers = ["IE 11"];
+} else {
+    browsers = ["PhantomJS"];
+}
 
 var campaigns = [
     testConfigBuilder.buildTestConfig({
         campaign: "classic",
-        browsers: ["PhantomJS"],
+        browsers: browsers,
         phantomjs: true
     }),
     testConfigBuilder.buildTestConfig({
         campaign: "unpackaged",
-        browsers: ["PhantomJS"]
+        browsers: browsers
     }),
     testConfigBuilder.buildTestConfig({
         campaign: "testSkin",
-        browsers: ["PhantomJS"]
+        browsers: browsers
     }),
     testConfigBuilder.buildTestConfig({
         campaign: "flatSkin",
-        browsers: ["PhantomJS"]
-    }),
+        browsers: browsers
+    })/*,
     testConfigBuilder.buildTestConfig({
         campaign: "nophantom",
-        noFlash: travis,
+        noFlash: travis || appveyor,
         browsers: ["Firefox"]
-    })
+    })*/
 ];
 
 var robotServerProcess = robotServer.exec();

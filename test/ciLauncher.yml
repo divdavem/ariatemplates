@@ -7,6 +7,10 @@ browsers:
     PhantomJS:
         $launcher: $phantomjs
         $maxInstances: 4
+    IE 11:
+        $launcher: localWebdriver
+        capabilities:
+            browserName: internet explorer
     Firefox:
         $launcher: localWebdriver
         capabilities:
