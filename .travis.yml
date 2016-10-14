@@ -21,6 +21,7 @@ before_install:
   - npm --version
   - npm config set spin false
   - phantomjs --version
+  - geckodriver --version
 script:
   - npm run ci
 notifications:
