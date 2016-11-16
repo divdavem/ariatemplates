@@ -61,7 +61,8 @@ module.exports = Aria.classDefinition({
         "robotInitialized" : "Raised when the robot initialization has been done."
     },
     $statics : {
-        ROBOT_ERROR : "An error occurred in the robot: %1"
+        ROBOT_ERROR : "An error occurred in the robot: %1",
+        EXECUTE_NOT_IMPLEMENTED : "execute is not implemented"
     },
     $prototype : {
 
@@ -226,6 +227,18 @@ module.exports = Aria.classDefinition({
                 fn : this._callCallback,
                 args : cb
             });
+        },
+
+        execute : function (actions, cb) {
+            if (!this._robot.execute) {
+                this.$logError(this.EXECUTE_NOT_IMPLEMENTED);
+                this.$callback(cb);
+            }
+            this._robot.execute(actions, {
+                scope : this,
+                fn : this._callCallback,
+                args : cb
+            })
         }
     }
 });

@@ -85,6 +85,7 @@ module.exports = Aria.classDefinition({
     },
     $statics : {
         MOUSEWHEEL_NOT_IMPLEMENTED : "mouseWheel is not implemented",
+        EXECUTE_NOT_IMPLEMENTED : "execute is not implemented",
 
         BUTTONS : {
             16 : "left",
@@ -274,6 +275,15 @@ module.exports = Aria.classDefinition({
          */
         mouseWheel : function (wheelAmt, cb) {
             this.$logError(this.MOUSEWHEEL_NOT_IMPLEMENTED);
+            this.$callback(cb);
+        },
+
+        /**
+         * This method is not implemented. It logs an error.
+         */
+        execute : function (actions, cb) {
+            this.$logError(this.EXECUTE_NOT_IMPLEMENTED);
+            this.$callback(cb);
         },
 
         /**
