@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "at-noder-converter": "1.0.1",
-    "atpackager": "0.2.7",
+    "atpackager": "git+https://github.com/divdavem/atpackager.git#wipUpdates",
     "gzip-js": "0.3.2",
     "noder-js": "1.6.2"
   },
