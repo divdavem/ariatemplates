@@ -15,6 +15,7 @@
 var Aria = require("../Aria");
 var ariaUtilsString = require("../utils/String");
 var ariaUtilsArray = require("../utils/Array");
+var ariaUtilsFunction = require("../utils/Function");
 
 /**
  * Class to be extended to create a template test case which checks the behavior with
@@ -26,10 +27,26 @@ module.exports = Aria.classDefinition({
     $constructor : function () {
         this.$RobotTestCase.constructor.call(this);
 
+        this._screenReaderListener = Aria.$window.top.ScreenReaderListener;
+        if (this._screenReaderListener) {
+            this._screenReaderListenerHistory = [];
+            this._onScreenReaderData = ariaUtilsFunction.bind(this._onScreenReaderData, this);
+            this._screenReaderListener.onData(this._onScreenReaderData);
+        }
+
         /**
          * Lines matching one of those regular expressions are considered noise and will be removed by removeNoise.
          */
-        this.noiseRegExps = [/^(Aria Templates tests frame|Aria Templates tests document|New tab page)$/i];
+        this.noiseRegExps = [/^(Aria Templates tests frame|Aria Templates tests document|New tab page|blank|space|tab|shift tab|shift f 10|escape|enter)$/i];
+    },
+    $destructor : function () {
+        if (this._screenReaderListener) {
+            this._screenReaderListener.offData(this._onScreenReaderData);
+            this._screenReaderListenerHistory = null;
+            this._onScreenReaderData = null;
+            this._screenReaderListener = null;
+        }
+        this.$RobotTestCase.$destructor.call(this);
     },
     $prototype : {
         /**
@@ -74,6 +91,13 @@ module.exports = Aria.classDefinition({
         },
 
         /**
+         * Called when data comes from the screen reader.
+         */
+        _onScreenReaderData : function (data) {
+            this._screenReaderListenerHistory.push(data.data);
+        },
+
+        /**
          * Sends the keyboard events necessary to clear Jaws history.
          * In case Jaws is not running, the test is ended.
          * @param {aria.core.CfgBeans:Callback} cb
@@ -88,6 +112,13 @@ module.exports = Aria.classDefinition({
             ],{
                 fn: function () {
                     var textAreaContent = textArea.value;
+                    if (this._screenReaderListener) {
+                        // check that JAWS said: "Speech history cleared"
+                        if (this._screenReaderListenerHistory[this._screenReaderListenerHistory.length - 1] !== "Speech history cleared") {
+                            textAreaContent = "error";
+                        }
+                        this._screenReaderListenerHistory = [];
+                    }
                     textArea.parentNode.removeChild(textArea);
                     // if there is something in the text area, there is something
                     // wrong in the setup (e.g.: JAWS not enabled or wrong robot
@@ -111,23 +142,30 @@ module.exports = Aria.classDefinition({
          * @param {aria.core.CfgBeans:Callback} cb
          */
         retrieveJawsHistory : function (cb) {
-            var textArea = this._createFullScreenTextArea();
-            this.synEvent.execute([
-                ["type", null, "[<insert>][space][>insert<]h"], // displays history window
-                ["pause", 2000],
-                ["type", null, "[<ctrl>]a[>ctrl<][<ctrl>]c[>ctrl<]"], // copies the whole history in the clipboard
-                ["pause", 1000],
-                ["type", null, "[<alt>][F4][>alt<]"], // closes history window
-                ["click", textArea],
-                ["type", null, "[<ctrl>]v[>ctrl<]"], // pastes history in our text area
-                ["pause", 2000]
-            ], {
-                fn: function () {
-                    textArea.parentNode.removeChild(textArea);
-                    this.$callback(cb, textArea.value);
-                },
-                scope: this
-            });
+            if (this._screenReaderListener) {
+                var self = this;
+                setTimeout(function () {
+                    self.$callback(cb, self._screenReaderListenerHistory.join("\n"));
+                }, 2000);
+            } else {
+                var textArea = this._createFullScreenTextArea();
+                this.synEvent.execute([
+                    ["type", null, "[<insert>][space][>insert<]h"], // displays history window
+                    ["pause", 2000],
+                    ["type", null, "[<ctrl>]a[>ctrl<][<ctrl>]c[>ctrl<]"], // copies the whole history in the clipboard
+                    ["pause", 1000],
+                    ["type", null, "[<alt>][F4][>alt<]"], // closes history window
+                    ["click", textArea],
+                    ["type", null, "[<ctrl>]v[>ctrl<]"], // pastes history in our text area
+                    ["pause", 2000]
+                ], {
+                    fn: function () {
+                        textArea.parentNode.removeChild(textArea);
+                        this.$callback(cb, textArea.value);
+                    },
+                    scope: this
+                });
+            }
         },
 
         /**
