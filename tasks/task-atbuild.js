@@ -32,7 +32,9 @@ module.exports = function (grunt) {
             packages : require('../build/config/files-prod.json'),
             outputDirectory : packagingSettings.prod.outputDirectory,
             outputBootstrapFile : packagingSettings.bootstrap.bootstrapFileName,
-            compileBeans : false,
+            compileBeans : {
+                onlyFastNorm : false
+            },
             clean : true,
             gzipStats : false,
             checkPackaged : true
