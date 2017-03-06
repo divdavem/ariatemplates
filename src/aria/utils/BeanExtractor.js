@@ -178,6 +178,26 @@ module.exports = Aria.classDefinition({
     $classpath: "aria.utils.BeanExtractor",
     $singleton: true,
     $prototype: {
+        /**
+         * Extracts and serializes the compiled version of a beans package.
+         * @param {String} logicalPath Logical path of the beans package to extract and serialize.
+         * @param {Object} config Configuration options. The following configuration options are available:
+         * <ul>
+         * <li>onlyFastNorm (Boolean) If this property is set to true (which is the default), only bean properties needed for fast normalization are
+         * included in the result ($getDefault and $fastNorm). This means the resulting file will not be usable to fully check the structure of data,
+         * it will only be usable to add default values.</li>
+         * <li>removeMultiTypes (Boolean) If this property is set to true (which is the default), the $contentTypes property of MultiTypes beans will
+         * not be included in the result.</li>
+         * <li>removeDoc (Boolean) If this property is set to true (which is the default), the $description and $sample properties of bean definitions
+         * will not be included in the result.</li>
+         * </ul>
+         * @return {Object} A noder-js promise resolving to an object that contains the following two properties:
+         * <ul>
+         * <li>skip (Boolean): If this property is true, the given logical path does not contain a bean that can be serialized. This is the case for
+         * aria.core.JsonTypes (which cannot be serialized by this method yet) and for logical paths that do not contain bean definitions.</li>
+         * <li>text (String): If skip is false, this property contains the serialized string of the module.</li>
+         * </ul>
+         */
         extract: function (logicalPath, config) {
             return asyncRequire(logicalPath).spreadSync(function (beanPackage) {
                 if (!(beanPackage.$package && beanPackage.$namespaces && beanPackage.$beans) || beanPackage.$package === jv._BASE_TYPES_PACKAGE) {
