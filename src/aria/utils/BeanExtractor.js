@@ -173,6 +173,13 @@ for (var key in fastNormalizers) {
     }
 }
 globalFnMap.set(Aria.returnNull, "Aria.returnNull");
+globalFnMap.set(Aria.returnArg, "Aria.returnArg");
+globalFnMap.set(Aria.returnObject, "Aria.returnObject");
+globalFnMap.set(Aria.returnArray, "Aria.returnArray");
+
+var filterFastNormBeans = function (path, bean) {
+    return !!bean.$fastNorm;
+};
 
 module.exports = Aria.classDefinition({
     $classpath: "aria.utils.BeanExtractor",
@@ -222,6 +229,7 @@ module.exports = Aria.classDefinition({
                 var packagePathPrefix = beanPackage.$package + ".";
                 var packagePathPrefixLength = packagePathPrefix.length;
                 var referencedBeans = {};
+                var filterSubBeans = config.onlyFastNorm ? filterFastNormBeans : Aria.returnTrue;
                 var beanStringifyFilter = function (path) {
                     if (path.length === 1) {
                         var name = path[0];
@@ -267,7 +275,7 @@ module.exports = Aria.classDefinition({
                 };
                 var processSubBean = function (beanInfo, key) {
                     var subBean = beanInfo.bean[key];
-                    if (subBean) {
+                    if (subBean && filterSubBeans([], subBean)) {
                         subBeansCode.push(getVariable(beanInfo), ".", key, "=", getVariable(processBean(subBean)), ";");
                     }
                 };
@@ -279,7 +287,7 @@ module.exports = Aria.classDefinition({
                             var parentBeanInfo = processBean(parentBean);
                             subBeansCode.push(getVariable(beanInfo), ".", key, "=", getVariable(parentBeanInfo), ".", key, ";");
                         } else {
-                            subBeansCode.push(getVariable(beanInfo), ".", key, "=", processBeansCollection(collection), ";");
+                            subBeansCode.push(getVariable(beanInfo), ".", key, "=", processBeansCollection(collection, filterSubBeans), ";");
                         }
                     }
                 };
@@ -323,11 +331,11 @@ module.exports = Aria.classDefinition({
                     }
                     return value;
                 };
-                var processBeansCollection = function (beans) {
-                    return stringify(beans, Aria.returnTrue, beanVariableReplacer);
+                var processBeansCollection = function (beans, filterBeans) {
+                    return stringify(beans, filterBeans, beanVariableReplacer);
                 };
 
-                var output = processBeansCollection(beanPackage.$beans);
+                var output = processBeansCollection(beanPackage.$beans, Aria.returnTrue);
                 if (config.onlyFastNorm) {
                     output = "{}";
                 }

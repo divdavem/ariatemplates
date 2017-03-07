@@ -35,6 +35,12 @@ var Aria = require("../Aria");
         return jv.__processedBeans[strType] || null;
     };
 
+    var commonGetDefault = {
+        "null": Aria.returnNull,
+        "{}": Aria.returnObject,
+        "[]": Aria.returnArray
+    };
+
     /**
      * The JSON Validator does two main operations:
      * <ul>
@@ -514,8 +520,9 @@ var Aria = require("../Aria");
                         });
                     }
 
-                    if (beanDef.$strDefault && !beanDef.$getDefault && baseType.makeFastNorm) {
-                        beanDef.$getDefault = new Function("return " + beanDef.$strDefault + ";");
+                    var strDefault = beanDef.$strDefault;
+                    if (strDefault && !beanDef.$getDefault && baseType.makeFastNorm) {
+                        beanDef.$getDefault = commonGetDefault.hasOwnProperty(strDefault) ? commonGetDefault[strDefault] : new Function("return " + strDefault + ";");
                     }
                 }
 
