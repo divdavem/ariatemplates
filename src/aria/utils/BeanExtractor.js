@@ -210,6 +210,12 @@ module.exports = Aria.classDefinition({
                 config.removeDoc = "removeDoc" in config ? !!config.removeDoc : true;
                 config.removeMultiTypes = "removeMultiTypes" in config ? !!config.removeMultiTypes : true;
                 config.onlyFastNorm = "onlyFastNorm" in config ? !!config.onlyFastNorm : true;
+                if (!config.onlyFastNorm && !jv._options.checkEnabled) {
+                    throw new Error("Aria Templates must be in debug mode for beans to be compiled without the onlyFastNorm option.");
+                }
+                if (!config.removeMultiTypes && !jv._options.checkEnabled) {
+                    throw new Error("Aria Templates must be in debug mode for beans to be compiled without the removeMultiTypes option.");
+                }
                 var variables = variablesMgr();
                 var subBeansCode = [];
                 var toPostProcess = [];
@@ -307,7 +313,7 @@ module.exports = Aria.classDefinition({
                     processSubBean(beanInfo, "$contentType");
                     processSubBean(beanInfo, "$keyType");
                     processSubBeansCollection(beanInfo, "$properties");
-                    if (Aria.debug && !config.removeMultiTypes) {
+                    if (!config.removeMultiTypes) {
                         processSubBeansCollection(beanInfo, "$contentTypes");
                     }
                 };
