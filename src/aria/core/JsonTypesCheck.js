@@ -422,8 +422,9 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                         beanDef.$fastNorm = parentBean.$fastNorm;
                         return;
                     }
-                    var strBuffer = ["var beanProperties = this.$properties;"];
-                    strBuffer.push("if (!obj) { obj = this.$getDefault(); }");
+                    var strBuffer = ["var beanProperties = this.$properties, value;"];
+                    strBuffer.push("if (!obj && this.$getDefault) { obj = this.$getDefault(); }");
+                    strBuffer.push("if (obj) {");
 
                     // loop over properties to generate normalizers
                     var hasProperties = false;
@@ -434,18 +435,21 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                         }
                         var property = properties[propertyName];
                         var strDefault = property.$strDefault;
-                        if (strDefault) {
-                            hasProperties = true;
-                            strBuffer.push("if (obj['" + propertyName + "'] == null) { obj['" + propertyName + "'] = " + strDefault + "; }");
-                        }
                         if (hasFastNorm(property)) {
                             hasProperties = true;
                             // PTR 04546401 : Even if they have no default values, Objects might have subproperties with
-                            // default values
-                            // These properties should be normalized as well
-                            strBuffer.push("if (obj['" + propertyName + "'] != null) { beanProperties['" + propertyName + "'].$fastNorm(obj['" + propertyName + "']);}");
+                            // default values, these properties should be normalized as well
+                            if (strDefault) {
+                                strBuffer.push("obj['" + propertyName + "'] = beanProperties['" + propertyName + "'].$fastNorm(obj['" + propertyName + "']);");
+                            } else {
+                                strBuffer.push("value = obj['" + propertyName + "']; if (value != null) { beanProperties['" + propertyName + "'].$fastNorm(value); }");
+                            }
+                        } else if (strDefault) {
+                            hasProperties = true;
+                            strBuffer.push("if (obj['" + propertyName + "'] == null) { obj['" + propertyName + "'] = " + strDefault + "; }");
                         }
                     }
+                    strBuffer.push("}");
                     strBuffer.push("return obj;");
 
                     beanDef.$fastNorm = hasProperties ? new Function("obj", strBuffer.join("\n")) : fastNormalizers.emptyObject;
@@ -471,7 +475,7 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                     }
                 },
                 makeFastNorm : function (beanDef) {
-                    beanDef.$fastNorm = hasFastNorm(beanDef.$contentType) ? fastNormalizers.array : Aria.returnArg;
+                    beanDef.$fastNorm = hasFastNorm(beanDef.$contentType) ? fastNormalizers.array : (beanDef.$strDefault ? fastNormalizers.emptyObject : Aria.returnArg);
                 }
             }, {
                 typeName : "Map",
@@ -510,7 +514,7 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                     }
                 },
                 makeFastNorm : function (beanDef) {
-                    beanDef.$fastNorm = hasFastNorm(beanDef.$contentType) ? fastNormalizers.map : Aria.returnArg;
+                    beanDef.$fastNorm = hasFastNorm(beanDef.$contentType) ? fastNormalizers.map : (beanDef.$strDefault ? fastNormalizers.emptyObject : Aria.returnArg);
                 }
             }, {
                 typeName : "MultiTypes",
@@ -578,25 +582,21 @@ var ariaCoreJsonValidator = require("./JsonValidator");
      */
     var fastNormalizers = {
         emptyObject : function (obj) {
-            if (!obj) {
-                obj = this.$getDefault();
-            }
-
-            return obj;
+            return obj || this.$getDefault();
         },
 
         array : function (obj) {
-            if (!obj) {
+            if (!obj && this.$getDefault) {
                 obj = this.$getDefault();
             }
-            for (var i = 0, l = obj.length; i < l; i++) {
+            for (var i = 0, l = obj ? obj.length : 0; i < l; i++) {
                 this.$contentType.$fastNorm(obj[i]);
             }
             return obj;
         },
 
         map : function (obj) {
-            if (!obj) {
+            if (!obj && this.$getDefault) {
                 obj = this.$getDefault();
             }
             for (var key in obj) {
