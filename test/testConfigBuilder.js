@@ -198,7 +198,7 @@ exports.testsRootDirectory = "test";
 exports.bootstrapPath = "/aria/<%= env.name %>-<%= env.version %>.js";
 exports.atSkinPath = "/aria/css/atskin-<%= env.version %>.js";
 exports.flatSkinPath = "/aria/css/atflatskin-<%= env.version %>.js";
-exports.testSkinPath = "/test/aria/testSkin/CustomTestSkin.js";
+exports.testSkinPath = "/aria/css/CustomTestSkin-<%= env.version %>.js";
 
 var path = require("path");
 

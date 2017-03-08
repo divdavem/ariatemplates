@@ -30,18 +30,6 @@ Aria.classDefinition({
             "Icon" : {
                 "std" : {
                     "content" : {
-                        "camera-retro" : "fa fa-camera-retro",
-                        "spinner" : "fa fa-spinner fa-spin",
-                        "home" : "fa fa-home",
-                        "pencil" : "fa fa-pencil",
-                        "cog" : "fa fa-cog",
-                        "cog-spinner" : "fa fa-cog fa-spin",
-                        "refresh" : "fa fa-refresh fa-spin",
-                        "circle" : "fa fa-circle-o-notch fa-spin",
-                        "shield" : "fa fa-shield",
-                        "terminal" : "fa fa-terminal",
-                        "shield-90" : "fa fa-shield fa-rotate-90",
-                        "shield-180" : "fa fa-shield fa-rotate-180"
                     }
                 },
                 "checkBoxes" : {
@@ -211,14 +199,8 @@ Aria.classDefinition({
                     "states" : {
                         "normal" : {
                             "marginBottom" : 2,
-                            "spriteURLv" : "atskin/sprites/inputCentre.gif",
-                            "sprHeight" : 20,
-                            "sprWidth" : 7,
                             "marginTop" : 3,
                             "color" : "#000000",
-                            "sprIdx" : 0,
-                            "spcLeft" : 3,
-                            "spriteURL" : "atskin/sprites/inputEdge.gif",
                             "font" : {
                                 "fontStyle" : "italic",
                                 "fontSize" : 17,
@@ -483,18 +465,12 @@ Aria.classDefinition({
                     "states" : {
                         "normal" : {
                             "marginBottom" : 2,
-                            "spriteURLv" : "atskin/sprites/inputCentre.gif",
                             "skipLeftBorder" : false,
-                            "sprWidth" : 7,
-                            "sprHeight" : 20,
                             "color" : "#000000",
                             "marginTop" : 3,
-                            "sprIdx" : 0,
-                            "spcLeft" : 3,
                             "icons" : {
                                 "dropdown" : "dropdown:multiselect_normal"
                             },
-                            "spriteURL" : "atskin/sprites/inputEdge.gif",
                             "skipRightBorder" : "dependsOnIcon",
                             "font" : {
                                 "fontStyle" : "italic",

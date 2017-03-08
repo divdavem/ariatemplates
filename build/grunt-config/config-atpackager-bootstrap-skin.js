@@ -21,20 +21,23 @@ module.exports = function (grunt) {
             ATDebug : true,
             ATBootstrapFile : packagingSettings.bootstrap.bootstrapFileName,
             ATDirectories : [packagingSettings.bootstrap.outputDirectory],
-            sourceDirectories : ['src'],
-            sourceFiles : ['aria/css/**'],
+            sourceDirectories : ['src', '.'],
+            sourceFiles : ['aria/css/**', 'test/aria/testSkin/CustomTestSkin.js'],
             outputDirectory : packagingSettings.bootstrap.outputDirectory,
             visitors : [{
                         type : 'ATNormalizeSkin',
                         cfg : {
-                            files : ['aria/css/*.js'],
+                            files : ['aria/css/*.js', 'test/aria/testSkin/CustomTestSkin.js'],
                             strict : true
                         }
                     }, {
                         type : 'CopyUnpackaged',
                         cfg : {
-                            files : ['aria/css/*.js'],
+                            files : ['aria/css/*.js', 'test/aria/testSkin/CustomTestSkin.js'],
                             renameFunction : function (name) {
+                                if (/^test/.test(name)) {
+                                    name = 'aria/css/CustomTestSkin.js';
+                                }
                                 return name.replace(/.js$/, grunt.config.process('-' + packagingSettings.pkg.version + '.js'));
                             },
                             builder : {

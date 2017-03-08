@@ -37,6 +37,7 @@ module.exports = function (grunt) {
     grunt.config.set('atbuild.default', {
         options : {
             gzipStats : true,
+            compileBeans : {},
             clean : settings.prod.clean
         }
     });
