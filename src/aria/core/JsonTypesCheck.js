@@ -417,14 +417,22 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                 makeFastNorm : function (beanDef) {
                     var properties = beanDef.$properties;
                     var parentBean = beanDef[jv._MD_PARENTDEF];
-                    if (properties === parentBean.$properties) {
-                        // shortcut: reuse parent $fastNorm bean when possible
+                    var parentBeanProperties = parentBean.$properties;
+                    if (properties === parentBeanProperties) {
+                        // shortcut: reuse parent $fastNorm when possible
                         beanDef.$fastNorm = parentBean.$fastNorm;
+                        if (parentBean.$fastNormParent) {
+                            beanDef.$fastNormParent = parentBean.$fastNormParent;
+                        }
                         return;
                     }
                     var strBuffer = ["var beanProperties = this.$properties, value;"];
                     strBuffer.push("if (!obj && this.$getDefault) { obj = this.$getDefault(); }");
                     strBuffer.push("if (obj) {");
+
+                    var hasParentProperties = false;
+                    var hasParentIncompatibleProperties = false;
+                    var parentPropertiesBuffer = [];
 
                     // loop over properties to generate normalizers
                     var hasProperties = false;
@@ -434,25 +442,65 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                             continue;
                         }
                         var property = properties[propertyName];
+                        var parentProperty = parentBeanProperties ? parentBeanProperties[propertyName] : null;
                         var strDefault = property.$strDefault;
-                        if (hasFastNorm(property)) {
-                            hasProperties = true;
+                        var propertyHasFastNorm = hasFastNorm(property);
+                        var codeForProperty;
+                        var canUseParent = false;
+                        if (parentProperty) {
+                            if (parentProperty === property || (!propertyHasFastNorm && parentProperty.$strDefault === property.$strDefault)) {
+                                canUseParent = true;
+                            } else {
+                                hasParentIncompatibleProperties = true;
+                            }
+                        }
+                        if (propertyHasFastNorm) {
                             // PTR 04546401 : Even if they have no default values, Objects might have subproperties with
                             // default values, these properties should be normalized as well
                             if (strDefault) {
-                                strBuffer.push("obj['" + propertyName + "'] = beanProperties['" + propertyName + "'].$fastNorm(obj['" + propertyName + "']);");
+                                codeForProperty = "obj['" + propertyName + "'] = beanProperties['" + propertyName + "'].$fastNorm(obj['" + propertyName + "']);";
                             } else {
-                                strBuffer.push("value = obj['" + propertyName + "']; if (value != null) { beanProperties['" + propertyName + "'].$fastNorm(value); }");
+                                codeForProperty = "value = obj['" + propertyName + "']; if (value != null) { beanProperties['" + propertyName + "'].$fastNorm(value); }";
                             }
                         } else if (strDefault) {
+                            codeForProperty = "if (obj['" + propertyName + "'] == null) { obj['" + propertyName + "'] = " + strDefault + "; }";
+                        } else {
+                            continue;
+                        }
+                        if (canUseParent) {
+                            hasParentProperties = true;
+                            parentPropertiesBuffer.push(codeForProperty);
+                        } else {
                             hasProperties = true;
-                            strBuffer.push("if (obj['" + propertyName + "'] == null) { obj['" + propertyName + "'] = " + strDefault + "; }");
+                            strBuffer.push(codeForProperty);
+                        }
+                    }
+                    if (hasParentIncompatibleProperties || !hasParentProperties) {
+                        if (hasParentProperties) {
+                            hasProperties = true;
+                            strBuffer = strBuffer.concat(parentPropertiesBuffer);
+                        }
+                        if (!hasProperties) {
+                            beanDef.$fastNorm = fastNormalizers.emptyObject;
+                            return;
+                        }
+                    } else {
+                        if (hasProperties) {
+                            strBuffer.push("this.$fastNormParent.$fastNorm(obj);");
+                            beanDef.$fastNormParent = parentBean;
+                        } else {
+                            // shortcut: reuse parent $fastNorm as there is no new property
+                            beanDef.$fastNorm = parentBean.$fastNorm;
+                            if (parentBean.$fastNormParent) {
+                                beanDef.$fastNormParent = parentBean.$fastNormParent;
+                            }
+                            return;
                         }
                     }
                     strBuffer.push("}");
                     strBuffer.push("return obj;");
 
-                    beanDef.$fastNorm = hasProperties ? new Function("obj", strBuffer.join("\n")) : fastNormalizers.emptyObject;
+                    beanDef.$fastNorm = new Function("obj", strBuffer.join("\n")) ;
                 }
             }, {
                 typeName : "Array",

@@ -137,6 +137,7 @@ var docExcludedProperties = {
 
 var onlyFastNormIncludedProperties = {
     $fastNorm: true,
+    $fastNormParent: true,
     $getDefault: true
 };
 
@@ -247,6 +248,9 @@ module.exports = Aria.classDefinition({
                 };
                 var localFnMap = new WeakMap();
                 var beanPropertiesReplacer = function (path, value, bean) {
+                    if (path.length === 1 && path[0] === "$fastNormParent") {
+                        return new Code(getVariable(processBean(value)));
+                    }
                     if (ariaUtilsType.isFunction(value)) {
                         var varName = localFnMap.get(value);
                         if (!varName) {
