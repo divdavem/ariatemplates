@@ -423,7 +423,7 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                         return;
                     }
                     var strBuffer = ["var beanProperties = this.$properties;"];
-                    strBuffer.push("if (!obj) { return this.$getDefault(); }");
+                    strBuffer.push("if (!obj) { obj = this.$getDefault(); }");
 
                     // loop over properties to generate normalizers
                     var hasProperties = false;
@@ -436,19 +436,14 @@ var ariaCoreJsonValidator = require("./JsonValidator");
                         var strDefault = property.$strDefault;
                         if (strDefault) {
                             hasProperties = true;
-                            strBuffer.push("if (obj['" + propertyName + "'] == null) { obj['" + propertyName + "'] = "
-                                    + strDefault + "; }");
-                            if (hasFastNorm(property)) {
-                                strBuffer.push("else { beanProperties['" + propertyName + "'].$fastNorm(obj['"
-                                        + propertyName + "']); }");
-                            }
-                        } else if (hasFastNorm(property)) {
+                            strBuffer.push("if (obj['" + propertyName + "'] == null) { obj['" + propertyName + "'] = " + strDefault + "; }");
+                        }
+                        if (hasFastNorm(property)) {
                             hasProperties = true;
                             // PTR 04546401 : Even if they have no default values, Objects might have subproperties with
                             // default values
                             // These properties should be normalized as well
-                            strBuffer.push("if (obj['" + propertyName + "'] != null) { beanProperties['" + propertyName
-                                    + "'].$fastNorm(obj['" + propertyName + "']);}");
+                            strBuffer.push("if (obj['" + propertyName + "'] != null) { beanProperties['" + propertyName + "'].$fastNorm(obj['" + propertyName + "']);}");
                         }
                     }
                     strBuffer.push("return obj;");
@@ -584,7 +579,7 @@ var ariaCoreJsonValidator = require("./JsonValidator");
     var fastNormalizers = {
         emptyObject : function (obj) {
             if (!obj) {
-                return this.$getDefault();
+                obj = this.$getDefault();
             }
 
             return obj;
@@ -592,7 +587,7 @@ var ariaCoreJsonValidator = require("./JsonValidator");
 
         array : function (obj) {
             if (!obj) {
-                return this.$getDefault();
+                obj = this.$getDefault();
             }
             for (var i = 0, l = obj.length; i < l; i++) {
                 this.$contentType.$fastNorm(obj[i]);
@@ -602,7 +597,7 @@ var ariaCoreJsonValidator = require("./JsonValidator");
 
         map : function (obj) {
             if (!obj) {
-                return this.$getDefault();
+                obj = this.$getDefault();
             }
             for (var key in obj) {
                 if (obj.hasOwnProperty(key)) {
