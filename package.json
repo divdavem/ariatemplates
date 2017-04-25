@@ -16,18 +16,18 @@
   },
   "scripts": {
     "start": "node scripts/server.js",
-    "prestart": "npm install",
-    "prepublish": "npm run lint-src && npm run grunt",
+    "prestart": "yarn install",
+    "prepublish": "yarn lint-src && yarn grunt",
     "lint-src": "node build/grunt-cli.js checkStyle",
     "lint-test": "node build/grunt-cli.js checkStyleTest",
     "lint": "node build/grunt-cli.js checkStyle checkStyleTest",
     "grunt": "node build/grunt-cli.js",
     "attester": "node scripts/ciCampaigns.js",
     "mocha": "mocha --recursive test/node",
-    "test-suites": "npm run mocha && npm run attester",
-    "test": "npm run lint && npm run grunt && npm run test-suites",
+    "test-suites": "yarn mocha && yarn attester",
+    "test": "yarn lint && yarn grunt && yarn test-suites",
     "attest": "node scripts/attest.js",
-    "ci": "npm run lint-test && npm run test-suites"
+    "ci": "yarn lint-test && yarn test-suites"
   },
   "dependencies": {
     "at-noder-converter": "1.1.1",

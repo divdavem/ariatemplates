@@ -1,8 +1,9 @@
 language: node_js
 node_js:
-  - 4.2
+  - 6.10.2
 sudo: false
 cache:
+  yarn: true
   directories:
     - node_modules
 addons:
@@ -15,13 +16,12 @@ before_install:
   - export DISPLAY=:99.0
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/awesome_99.pid --make-pidfile --background --exec /usr/bin/awesome
-  - npm install -g geckodriver@1.4
+  - yarn global add geckodriver@1.4
 # Diagnostics
-  - npm --version
-  - npm config set spin false
+  - yarn --version
   - phantomjs --version
 script:
-  - npm run ci
+  - yarn ci
 notifications:
   email:
     - build@ariatemplates.com
