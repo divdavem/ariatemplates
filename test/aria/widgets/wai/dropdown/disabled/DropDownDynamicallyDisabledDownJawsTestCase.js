@@ -63,7 +63,7 @@ Aria.classDefinition({
                         "FirstFieldLabel Edit",
                         "FirstFieldLabel",
                         "Disabled widgets",
-                        "check box not checked",
+                        "Disabled widgets check box not checked",
                         "Disabled widgets check box checked",
                         "Disabled widgets",
                         "FirstFieldLabel",
