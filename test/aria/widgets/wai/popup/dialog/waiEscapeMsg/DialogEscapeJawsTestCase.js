@@ -46,7 +46,10 @@ module.exports = Aria.classDefinition({
                 ["waitForJawsToSay","Press escape again to close the dialog."],
                 ["type",null,"[escape]"],
                 ["waitForJawsToSay","Escape"],
-                ["waitForJawsToSay","Open dialog Button"],
+                ["waitForJawsToSay", {
+                    find: "Open dialog Button",
+                    skipClear: true // because JAWS 16 says "MyDialog is closed" before "Open dialog Button"
+                }],
                 ["waitForJawsToSay","My Dialog is closed."]
             ], {
                 fn: this.end,

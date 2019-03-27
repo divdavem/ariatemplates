@@ -55,7 +55,7 @@ module.exports = Aria.classDefinition({
                 ["type",null,"[<alt>]m[>alt<]"],
                 ["pause",500],
                 ["waitForJawsToSay","Alt m"],
-                ["waitForJawsToSay","Link  Link In The Dialog"],
+                ["waitForJawsToSay",/Link\s+Link In The Dialog/],
                 ["waitForJawsToSay","Link In The Dialog Link"],
                 ["type",null,"[escape]"],
                 ["waitForJawsToSay","Escape"],
@@ -80,7 +80,7 @@ module.exports = Aria.classDefinition({
                 ["type",null,"[<alt>]m[>alt<]"],
                 ["pause",500],
                 ["waitForJawsToSay","Alt m"],
-                ["waitForJawsToSay","Link  Background Link"],
+                ["waitForJawsToSay",/Link\s+Background Link/],
                 ["waitForJawsToSay","Background Link Link"]
             ], {
                 fn: this.end,

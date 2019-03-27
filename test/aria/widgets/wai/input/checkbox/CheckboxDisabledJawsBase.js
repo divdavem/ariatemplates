@@ -33,11 +33,11 @@ Aria.classDefinition({
         expectedDisabled: false,
 
         jawsTextForCheckbox: function (checkboxName) {
-            var res = checkboxName + " check box  " + (this.expectedChecked ? "checked" : "not checked");
+            var res = checkboxName + "\\s+check box\\s+" + (this.expectedChecked ? "checked" : "not checked");
             if (this.expectedDisabled) {
-                res += "   Unavailable";
+                res += "\\s+Unavailable";
             }
-            return res;
+            return new RegExp(res);
         },
 
         setupCheckedDisabledState: function () {
