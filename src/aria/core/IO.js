@@ -212,6 +212,9 @@ module.exports = Aria.classDefinition({
     $destructor : function () {
         // Clear any pending timeout
         var timeout;
+        if (!this._timeOut) {
+            this.$logError("this._timeOut not an object in $destructor!!");
+        }
         for (timeout in this._timeOut) {
             if (this._timeOut.hasOwnProperty(timeout)) {
                 clearTimeout(this._timeOut[timeout]);
@@ -751,6 +754,9 @@ module.exports = Aria.classDefinition({
          */
         setTimeout : function (id, timeout, callback) {
             if (timeout > 0) {
+                if (!this._timeOut) {
+                    this.$logError("this._timeOut not an object in setTimeout!!");
+                }
                 this._timeOut[id] = setTimeout(function () {
                     // You won't believe this, but sometimes IE forgets to remove the timeout even if
                     // we explicitely called a clearTimeout. Double check that the timeout is valid
@@ -769,6 +775,9 @@ module.exports = Aria.classDefinition({
          * @param {Number} id Request id
          */
         clearTimeout : function (id) {
+            if (!this._timeOut) {
+                this.$logError("this._timeOut not an object in clearTimeout!!");
+            }
             clearTimeout(this._timeOut[id]);
             delete this._timeOut[id];
         },
