@@ -21,10 +21,9 @@ Aria.classDefinition({
         this.setTestEnv({
             template : "test.aria.widgets.wai.input.radiobutton.RadioButtonGroupTestCaseTpl"
         });
-        this.noiseRegExps.push(/(First textfield Edit|Type in text\.)$/i);
     },
     $prototype : {
-        skipClearHistory: false,
+        skipClearHistory: true,
 
         runTemplateTest : function () {
 
@@ -32,35 +31,27 @@ Aria.classDefinition({
                 ["click", this.getElementById("tf1")],
                 ["waitForJawsToSay","First textfield Edit"],
                 ["type",null,"[down]"],
-                ["waitForJawsToSay",/radio button\s+not checked\s+Radio A/],
+                ["waitForJawsToSay","Radio A radio button not checked"],
                 ["type",null,"[space]"],
-                ["waitForJawsToSay","Space"],
-                ["waitForJawsToSay","Radio A radio button  checked"],
-                ["type",null,"[down][down][down][down][down]"],
-                ["waitForJawsToSay","Radio A"],
-                ["waitForJawsToSay",/radio button\s+not checked\s+Radio B/],
-                ["waitForJawsToSay","Radio B"],
-                ["waitForJawsToSay",/radio button\s+not checked\s+Radio C/],
-                ["waitForJawsToSay","Radio C"],
+                ["waitForJawsToSay","checked"],
+                ["type",null,"[down]"],
+                ["waitForJawsToSay","Radio B radio button not checked"],
+                ["type",null,"[down]"],
+                ["waitForJawsToSay","Radio C radio button not checked"],
                 ["type",null,"[space]"],
-                ["waitForJawsToSay","Space"],
-                ["waitForJawsToSay","Radio C radio button  checked"],
-                ["type",null,"[up][up]"],
-                ["waitForJawsToSay","Radio B"],
-                ["waitForJawsToSay",/radio button\s+not checked\s+Radio B/],
+                ["waitForJawsToSay","checked"],
+                ["type",null,"[up]"],
+                ["waitForJawsToSay","Radio B radio button not checked"],
                 ["type",null,"[space]"],
-                ["waitForJawsToSay","Space"],
-                ["waitForJawsToSay","Radio B radio button  checked"],
-                ["type",null,"[down][down][down][down][down]"],
-                ["waitForJawsToSay","Radio B"],
-                ["waitForJawsToSay",/radio button\s+not checked\s+Radio C/],
-                ["waitForJawsToSay","Radio C"],
+                ["waitForJawsToSay","checked"],
+                ["type",null,"[down]"],
+                ["waitForJawsToSay","Radio C radio button not checked"],
+                ["type",null,"[down]"],
                 ["waitForJawsToSay","Last textfield"],
-                ["waitForJawsToSay","Edit"],
+                ["type",null,"[down]"],
+                ["pause", 1000],
                 ["type",null,"[<shift>][tab][>shift<]"],
-                ["waitForJawsToSay","Shift Tab"],
-                ["waitForJawsToSay","Radio B radio button  checked"],
-                ["waitForJawsToSay","To change the selection press Up or Down Arrow."]
+                ["waitForJawsToSay","Radio B radio button  checked"]
             ], {
                 fn: this.end,
                 scope: this

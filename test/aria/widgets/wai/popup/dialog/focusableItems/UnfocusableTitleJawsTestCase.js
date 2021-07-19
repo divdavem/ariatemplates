@@ -40,20 +40,26 @@ Aria.classDefinition({
         });
     },
     $prototype : {
+        skipClearHistory: true,
+
         runTemplateTest : function () {
+            var unacceptableTextListener = {
+                match: "This is the content of my dialog",
+                fn: this.lastJawsTextFailure,
+                scope: this
+            };
             this.execute([
+                ["registerJawsListener", unacceptableTextListener],
                 ["click", this.getElementById("button0")],
-                ["pause", 2000],
-                ["type", null, "[down][down][down]"],
-                ["pause", 2000],
+                ["pause", 500],
+                ["waitForJawsToSay", "Mydialogtitle"],
+                ["type", null, "[down]"],
+                ["waitForJawsToSay", "Do nothing"],
+                ["pause", 500],
                 ["type", null, "[escape]"],
-                ["pause", 2000]
+                ["pause", 500]
             ], {
-                fn: function () {
-                    this.assertJawsHistoryEquals(true, this.end, function (text) {
-                        return /Do nothing Button/.test(text) && /Mydialogtitle/.test(text) && !/This is the content of my dialog!/.test(text);
-                    });
-                },
+                fn: this.end,
                 scope: this
             });
         }

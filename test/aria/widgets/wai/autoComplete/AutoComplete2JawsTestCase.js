@@ -29,7 +29,7 @@ Aria.classDefinition({
             this.execute([
                 ["click", this.getElementById("inputBeforeAutoComplete")],
                 ["waitForJawsToSay", "Type in text."],
-                ["type", null, "[down][down][down][down]"],
+                ["type", null, "[down][down][down]"],
                 ["waitForJawsToSay", "Edit"],
                 ["type", null, "p"],
                 ["waitForJawsToSay", "There are 8 suggestions, use up and down arrow keys to navigate and enter to validate."],

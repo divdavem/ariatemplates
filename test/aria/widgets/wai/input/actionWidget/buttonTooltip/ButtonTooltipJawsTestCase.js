@@ -19,24 +19,22 @@ module.exports = Aria.classDefinition({
     $classpath : "test.aria.widgets.wai.input.actionWidget.buttonTooltip.ButtonTooltipJawsTestCase",
     $extends : require("ariatemplates/jsunit/JawsTestCase"),
     $prototype : {
+        skipClearHistory: true,
+
         runTemplateTest : function () {
-            this.noiseRegExps.push(/^Type/i);
             this.execute([
-                ["click", this.getElementById("tf1")], ["pause", 100],
-                ["type", null, "[tab]"], ["pause", 200],
-                ["type", null, "[tab]"], ["pause", 200],
-                ["type", null, "[tab]"], ["pause", 200]
+                ["click", this.getElementById("tf1")],
+                ["waitForJawsToSay", "First field"],
+                ["type", null, "[tab]"],
+                ["waitForJawsToSay", "my first button"],
+                ["waitForJawsToSay", "first tooltip"],
+                ["type", null, "[tab]"],
+                ["waitForJawsToSay", "my second button"],
+                ["waitForJawsToSay", "second tooltip"],
+                ["type", null, "[tab]"],
+                ["waitForJawsToSay", "Last field"]
             ], {
-                fn: function () {
-                    this.assertJawsHistoryEquals([
-                        "First field Edit",
-                        "my first button Button",
-                        "first tooltip",
-                        "my second button Button",
-                        "second tooltip",
-                        "Last field Edit"
-                    ].join("\n"), this.end);
-                },
+                fn: this.end,
                 scope: this
             });
         }

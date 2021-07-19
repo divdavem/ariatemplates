@@ -36,7 +36,9 @@ Aria.classDefinition({
                 ["type",null,"[down]"],
                 ["waitForJawsToSay","calendar one label"],
                 ["type",null,"[down]"],
-                ["waitForJawsToSay","Edit 6 slash 9 slash 16"],
+                ["pause",100],
+                ["type",null,"[down]"],
+                ["waitForJawsToSay","6 slash 9 slash 16"],
                 ["type",null,"[down]"],
                 ["waitForJawsToSay","calendar one button"],
 
@@ -58,8 +60,9 @@ Aria.classDefinition({
 
                 // Inputting date "by hand"
 
-                ["type",null,"[backspace]5"],
+                ["type",null,"[backspace]"],
                 ["waitForJawsToSay","6"],
+                ["type",null,"5"],
                 ["waitForJawsToSay","5"],
                 ["waitForJawsToSay","Monday 7 September 2015"], // date is read
 
